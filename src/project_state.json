@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 47,
+  "projectStateVersion": 49,
   "summary": "Dark, minimal, experimental portfolio website (React + TypeScript, GitHub Pages) with split layout over a dimmed full-screen background image, left-side interactive categories that open a large centered glass-morphism overlay panel (replacing the old small modal), a small fixed top-right vinyl play/pause controller for looping audio, and a full-height right-side interactive HDD hub (body/platter/arm) that reacts to category hover/click with lane-based arm movement and platter spin; glowing lane/ring highlight effects are removed/disabled for now.",
   "architectural_notes": [
     "Use React + TypeScript (minimal additional framework usage) and ensure build/deploy is compatible with GitHub Pages.",
@@ -775,6 +775,22 @@
       "summary": "Preserve the originally uploaded filenames (bg-3.png, vinyl-3.png, bodyhdd-3.png, disk-3.png, arm-3.png) in the repository in addition to the canonical copies, so the original uploads remain available for reference.",
       "reqIds": [
         "REQ-74"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-40",
+      "summary": "Create the missing `frontend/public` directory (if it does not exist) and add the 5 user-uploaded PNG files into it using these exact canonical filenames so the app’s existing asset resolution (`ASSET_PATHS` / fallback chains) can load them:\n- `frontend/public/bg.png`\n- `frontend/public/vinyl.png`\n- `frontend/public/bodyhdd.png`\n- `frontend/public/disk.png`\n- `frontend/public/arm.png`",
+      "reqIds": [
+        "REQ-75"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-41",
+      "summary": "Ensure the three selected HDDHub `<img>` elements render the newly added canonical public assets (no code changes outside these selected elements). The selected elements are:\n- Element 1 XPath: `/html[1]/body[1]/div[1]/div[1]/div[2]/div[2]/div[2]/div[1]/div[1]/div[1]/div[1]/img[1]`\n- Element 2 XPath: `/html[1]/body[1]/div[1]/div[1]/div[2]/div[2]/div[2]/div[1]/div[1]/div[2]/img[1]`\n- Element 3 XPath: `/html[1]/body[1]/div[1]/div[1]/div[2]/div[2]/div[2]/div[1]/div[1]/img[1]`\nThese correspond to the HDD hub’s body, disk, and arm image layers, which must load `bodyhdd.png`, `disk.png`, and `arm.png` from the public root via the existing fallback chains.",
+      "reqIds": [
+        "REQ-76"
       ],
       "status": "pending"
     }

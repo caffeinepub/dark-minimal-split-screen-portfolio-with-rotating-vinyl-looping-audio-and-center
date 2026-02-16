@@ -1,51 +1,53 @@
 {
   "kind": "build_request",
-  "title": "Apply newly uploaded images as canonical public assets (bg.png, vinyl.png, bodyhdd.png, disk.png, arm.png)",
-  "priority": "high",
+  "title": "Add uploaded PNG assets to frontend/public so HDDHub images render",
+  "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-73",
-      "text": "Add the 5 newly uploaded images to the project’s frontend public static assets and set them as the canonical filenames used by the app: place bg-3.png as frontend/public/bg.png, vinyl-3.png as frontend/public/vinyl.png, bodyhdd-3.png as frontend/public/bodyhdd.png, disk-3.png as frontend/public/disk.png, and arm-3.png as frontend/public/arm.png.",
+      "id": "REQ-75",
+      "text": "Create the missing `frontend/public` directory (if it does not exist) and add the 5 user-uploaded PNG files into it using these exact canonical filenames so the app’s existing asset resolution (`ASSET_PATHS` / fallback chains) can load them:\n- `frontend/public/bg.png`\n- `frontend/public/vinyl.png`\n- `frontend/public/bodyhdd.png`\n- `frontend/public/disk.png`\n- `frontend/public/arm.png`",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "yes apply",
-          "The user has uploaded 5 image(s): bg-3.png, arm-3.png, vinyl-3.png, bodyhdd-3.png, disk-3.png."
+          "yes add them now"
         ]
       },
       "acceptanceCriteria": [
-        "The files frontend/public/bg.png, frontend/public/vinyl.png, frontend/public/bodyhdd.png, frontend/public/disk.png, and frontend/public/arm.png exist in the repository and are the newly uploaded images (bg-3.png, vinyl-3.png, bodyhdd-3.png, disk-3.png, arm-3.png respectively).",
-        "On a fresh load, the background, vinyl image, and HDD hub layers render the real uploaded visuals (not the SVG placeholders), assuming the canonical files exist."
+        "`frontend/public/` exists in the repository after the change.",
+        "The five canonical files `bg.png`, `vinyl.png`, `bodyhdd.png`, `disk.png`, `arm.png` exist directly under `frontend/public/` (not nested).",
+        "On a fresh build/preview, the background and HDD hub images load without 404s when viewing the deployed site."
       ]
     },
     {
-      "id": "REQ-74",
-      "text": "Preserve the originally uploaded filenames (bg-3.png, vinyl-3.png, bodyhdd-3.png, disk-3.png, arm-3.png) in the repository in addition to the canonical copies, so the original uploads remain available for reference.",
+      "id": "REQ-76",
+      "text": "Ensure the three selected HDDHub `<img>` elements render the newly added canonical public assets (no code changes outside these selected elements). The selected elements are:\n- Element 1 XPath: `/html[1]/body[1]/div[1]/div[1]/div[2]/div[2]/div[2]/div[1]/div[1]/div[1]/div[1]/img[1]`\n- Element 2 XPath: `/html[1]/body[1]/div[1]/div[1]/div[2]/div[2]/div[2]/div[1]/div[1]/div[2]/img[1]`\n- Element 3 XPath: `/html[1]/body[1]/div[1]/div[1]/div[2]/div[2]/div[2]/div[1]/div[1]/img[1]`\nThese correspond to the HDD hub’s body, disk, and arm image layers, which must load `bodyhdd.png`, `disk.png`, and `arm.png` from the public root via the existing fallback chains.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "The user has uploaded 5 image(s): bg-3.png, arm-3.png, vinyl-3.png, bodyhdd-3.png, disk-3.png."
+          "The user has selected the following 3 elements from the page for context."
         ]
       },
       "acceptanceCriteria": [
-        "The repository contains copies of the original uploaded assets using their original filenames (bg-3.png, vinyl-3.png, bodyhdd-3.png, disk-3.png, arm-3.png) in a non-conflicting public-accessible location (e.g., under frontend/public/assets/uploads/ or similar).",
-        "The live app continues to reference only the canonical filenames (bg.png, vinyl.png, bodyhdd.png, disk.png, arm.png) via the existing asset URL resolver; no code changes are required for references."
+        "In the rendered UI, the HDD body, platter, and arm are visibly present (not missing/transparent placeholders) when the canonical PNGs are available.",
+        "Browser network tab shows successful loads (200) for `bodyhdd.png`, `disk.png`, and `arm.png` from the deployed base path (no root-absolute `/bodyhdd.png` style breakage on subpaths).",
+        "No other, non-selected elements are modified as part of this change."
       ]
     }
   ],
   "constraints": [
-    "Frontend must continue to use the existing base-path-safe asset resolution (import.meta.env.BASE_URL) and the existing fallback chains; do not reintroduce root-absolute \"/...\" asset paths.",
-    "Do not edit files under frontend/src/components/ui or any paths listed as immutable in SYSTEM_CONTEXT."
+    "Frontend immutable paths must not be edited: `frontend/src/hooks/useInternetIdentity.ts`, `frontend/src/hooks/useInternetIdentity.tsx`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`, `frontend/src/components/ui`.",
+    "Do not add any new backend functionality; this change is strictly static asset placement + ensuring the selected HDDHub image elements load those assets."
   ],
   "nonGoals": [
-    "Do not change HDDHub geometry, rotation mapping, overlay behavior, category data, or audio behavior as part of this task.",
-    "Do not implement custom domain/subdomain configuration (e.g., shibhii.caffeine.xyz) in this change."
+    "Custom domain/subdomain configuration (e.g., shibhii.caffeine.xyz).",
+    "Any redesign of the HDDHub geometry, hover/click behavior, or animations.",
+    "Generating new images; use the user-uploaded PNGs as-is."
   ],
   "imageRequirements": {
     "required": [],

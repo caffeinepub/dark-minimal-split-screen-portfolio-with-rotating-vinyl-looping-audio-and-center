@@ -1,11 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Replace placeholder/static visuals with the newly uploaded canonical public assets for the background and HDD/vinyl layers.
+**Goal:** Ensure HDDHub background and layered HDD images load correctly by placing the uploaded canonical PNG assets in `frontend/public` and wiring the selected HDDHub `<img>` elements to resolve them via the existing asset fallback chains.
 
 **Planned changes:**
-- Copy bg-3.png to frontend/public/bg.png, vinyl-3.png to frontend/public/vinyl.png, bodyhdd-3.png to frontend/public/bodyhdd.png, disk-3.png to frontend/public/disk.png, and arm-3.png to frontend/public/arm.png.
-- Preserve the original uploaded files (bg-3.png, vinyl-3.png, bodyhdd-3.png, disk-3.png, arm-3.png) in the repository in a non-conflicting public-accessible location for reference.
-- Keep the app referencing only the canonical filenames via the existing base-path-safe asset resolver and fallback chain (no new root-absolute paths).
+- Create `frontend/public/` if it does not exist.
+- Add the five uploaded PNG assets to `frontend/public/` using the exact canonical filenames: `bg.png`, `vinyl.png`, `bodyhdd.png`, `disk.png`, `arm.png`.
+- Update only the three selected HDDHub `<img>` elements (body, disk, arm layers) so they render `bodyhdd.png`, `disk.png`, and `arm.png` from the public root using the existing fallback chains (no other UI/code changes).
 
-**User-visible outcome:** On fresh load, the app renders the real uploaded background, vinyl, and HDD hub imagery using the canonical asset filenames (bg.png, vinyl.png, bodyhdd.png, disk.png, arm.png).
+**User-visible outcome:** On a fresh build/preview, the HDDHub background and HDD layers (body, platter, arm) render correctly without missing images/404s.

@@ -1,75 +1,57 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Apply newly uploaded images as canonical public assets",
+  "title": "Place canonical HDDHub PNGs in frontend/public and ensure HDDHub layers resolve them",
   "requirements": [
     {
-      "id": "REQ-73",
-      "summary": "Replace the app’s canonical public image assets (bg.png, vinyl.png, bodyhdd.png, disk.png, arm.png) with the newly uploaded visuals (bg-3.png, vinyl-3.png, bodyhdd-3.png, disk-3.png, arm-3.png).",
+      "id": "REQ-75",
+      "summary": "Create frontend/public (if missing) and add the five canonical PNG assets so existing ASSET_PATHS/fallback chains can load them.",
       "acceptanceCriteria": [
-        "The files frontend/public/bg.png, frontend/public/vinyl.png, frontend/public/bodyhdd.png, frontend/public/disk.png, and frontend/public/arm.png exist in the repository and are the newly uploaded images (bg-3.png, vinyl-3.png, bodyhdd-3.png, disk-3.png, arm-3.png respectively).",
-        "On a fresh load, the background, vinyl image, and HDD hub layers render the real uploaded visuals (not the SVG placeholders), assuming the canonical files exist."
+        "`frontend/public/` exists in the repository after the change.",
+        "The five canonical files `bg.png`, `vinyl.png`, `bodyhdd.png`, `disk.png`, `arm.png` exist directly under `frontend/public/` (not nested).",
+        "On a fresh build/preview, the background and HDD hub images load without 404s when viewing the deployed site."
       ],
       "file_operations": [
         {
           "path": "frontend/public/bg.png",
-          "operation": "modify",
-          "description": "Replace the current canonical background asset with the newly uploaded image content from bg-3.png (canonical filename must remain bg.png for BASE_URL-safe resolution)."
+          "operation": "create",
+          "description": "Add the user-uploaded PNG to the repo at this exact canonical path/filename so existing asset resolution can load it."
         },
         {
           "path": "frontend/public/vinyl.png",
-          "operation": "modify",
-          "description": "Replace the current canonical vinyl asset with the newly uploaded image content from vinyl-3.png (canonical filename must remain vinyl.png for BASE_URL-safe resolution)."
+          "operation": "create",
+          "description": "Add the user-uploaded PNG to the repo at this exact canonical path/filename so existing asset resolution can load it."
         },
         {
           "path": "frontend/public/bodyhdd.png",
-          "operation": "modify",
-          "description": "Replace the current canonical HDD body asset with the newly uploaded image content from bodyhdd-3.png (canonical filename must remain bodyhdd.png for BASE_URL-safe resolution)."
+          "operation": "create",
+          "description": "Add the user-uploaded PNG to the repo at this exact canonical path/filename so existing asset resolution can load it."
         },
         {
           "path": "frontend/public/disk.png",
-          "operation": "modify",
-          "description": "Replace the current canonical HDD disk asset with the newly uploaded image content from disk-3.png (canonical filename must remain disk.png for BASE_URL-safe resolution)."
+          "operation": "create",
+          "description": "Add the user-uploaded PNG to the repo at this exact canonical path/filename so existing asset resolution can load it."
         },
         {
           "path": "frontend/public/arm.png",
-          "operation": "modify",
-          "description": "Replace the current canonical HDD arm asset with the newly uploaded image content from arm-3.png (canonical filename must remain arm.png for BASE_URL-safe resolution)."
+          "operation": "create",
+          "description": "Add the user-uploaded PNG to the repo at this exact canonical path/filename so existing asset resolution can load it."
         }
       ]
     },
     {
-      "id": "REQ-74",
-      "summary": "Preserve the originally uploaded filenames in the repository alongside the canonical assets, without changing runtime references.",
+      "id": "REQ-76",
+      "summary": "Constrain changes to the three selected HDDHub <img> elements while ensuring they render the canonical body/disk/arm public assets via the existing fallback chains.",
       "acceptanceCriteria": [
-        "The repository contains copies of the original uploaded assets using their original filenames (bg-3.png, vinyl-3.png, bodyhdd-3.png, disk-3.png, arm-3.png) in a non-conflicting public-accessible location (e.g., under frontend/public/assets/uploads/ or similar).",
-        "The live app continues to reference only the canonical filenames (bg.png, vinyl.png, bodyhdd.png, disk.png, arm.png) via the existing asset URL resolver; no code changes are required for references."
+        "In the rendered UI, the HDD body, platter, and arm are visibly present (not missing/transparent placeholders) when the canonical PNGs are available.",
+        "Browser network tab shows successful loads (200) for `bodyhdd.png`, `disk.png`, and `arm.png` from the deployed base path (no root-absolute `/bodyhdd.png` style breakage on subpaths).",
+        "No other, non-selected elements are modified as part of this change."
       ],
       "file_operations": [
         {
-          "path": "frontend/public/assets/uploads/bg-3.png",
-          "operation": "create",
-          "description": "Add a preserved copy of the originally uploaded bg-3.png into a non-conflicting public-accessible location for reference (do not change app code to point to it)."
-        },
-        {
-          "path": "frontend/public/assets/uploads/vinyl-3.png",
-          "operation": "create",
-          "description": "Add a preserved copy of the originally uploaded vinyl-3.png into a non-conflicting public-accessible location for reference (do not change app code to point to it)."
-        },
-        {
-          "path": "frontend/public/assets/uploads/bodyhdd-3.png",
-          "operation": "create",
-          "description": "Add a preserved copy of the originally uploaded bodyhdd-3.png into a non-conflicting public-accessible location for reference (do not change app code to point to it)."
-        },
-        {
-          "path": "frontend/public/assets/uploads/disk-3.png",
-          "operation": "create",
-          "description": "Add a preserved copy of the originally uploaded disk-3.png into a non-conflicting public-accessible location for reference (do not change app code to point to it)."
-        },
-        {
-          "path": "frontend/public/assets/uploads/arm-3.png",
-          "operation": "create",
-          "description": "Add a preserved copy of the originally uploaded arm-3.png into a non-conflicting public-accessible location for reference (do not change app code to point to it)."
+          "path": "frontend/src/components/HDDHub.tsx",
+          "operation": "modify",
+          "description": "Update only the three selected <img> elements (HDD body, disk, arm layers) to add minimal, non-styling attributes (e.g., identifiers for verification) while keeping their src values bound to the existing hddBodyFallbacks/hddDiskFallbacks/hddArmFallbacks chains so they resolve to the canonical public assets when present."
         }
       ]
     }

@@ -1,7 +1,7 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-16T12:57:36.257Z",
+  "generatedAt": "2026-02-16T13:03:53.699Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
@@ -11,8 +11,8 @@
     "implemented": 0,
     "items": [
       {
-        "id": "REQ-73",
-        "summary": "Add the 5 newly uploaded images to the project’s frontend public static assets and set them as the canonical filenames used by the app: place bg-3.png as frontend/public/bg.png, vinyl-3.png as frontend/public/vinyl.png, bodyhdd-3.png as frontend/public/bodyhdd.png, disk-3.png as frontend/public/disk.png, and arm-3.png as frontend/public/arm.png.",
+        "id": "REQ-75",
+        "summary": "Create the missing `frontend/public` directory (if it does not exist) and add the 5 user-uploaded PNG files into it using these exact canonical filenames so the app’s existing asset resolution (`ASSET_PATHS` / fallback chains) can load them:\n- `frontend/public/bg.png`\n- `frontend/public/vinyl.png`\n- `frontend/public/bodyhdd.png`\n- `frontend/public/disk.png`\n- `frontend/public/arm.png`",
         "status": "missing",
         "plannedFiles": [
           "frontend/public/bg.png",
@@ -24,15 +24,11 @@
         "matchedFiles": []
       },
       {
-        "id": "REQ-74",
-        "summary": "Preserve the originally uploaded filenames (bg-3.png, vinyl-3.png, bodyhdd-3.png, disk-3.png, arm-3.png) in the repository in addition to the canonical copies, so the original uploads remain available for reference.",
+        "id": "REQ-76",
+        "summary": "Ensure the three selected HDDHub `<img>` elements render the newly added canonical public assets (no code changes outside these selected elements). The selected elements are:\n- Element 1 XPath: `/html[1]/body[1]/div[1]/div[1]/div[2]/div[2]/div[2]/div[1]/div[1]/div[1]/div[1]/img[1]`\n- Element 2 XPath: `/html[1]/body[1]/div[1]/div[1]/div[2]/div[2]/div[2]/div[1]/div[1]/div[2]/img[1]`\n- Element 3 XPath: `/html[1]/body[1]/div[1]/div[1]/div[2]/div[2]/div[2]/div[1]/div[1]/img[1]`\nThese correspond to the HDD hub’s body, disk, and arm image layers, which must load `bodyhdd.png`, `disk.png`, and `arm.png` from the public root via the existing fallback chains.",
         "status": "missing",
         "plannedFiles": [
-          "frontend/public/assets/uploads/bg-3.png",
-          "frontend/public/assets/uploads/vinyl-3.png",
-          "frontend/public/assets/uploads/bodyhdd-3.png",
-          "frontend/public/assets/uploads/disk-3.png",
-          "frontend/public/assets/uploads/arm-3.png"
+          "frontend/src/components/HDDHub.tsx"
         ],
         "matchedFiles": []
       }
