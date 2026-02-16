@@ -1,57 +1,107 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Place canonical HDDHub PNGs in frontend/public and ensure HDDHub layers resolve them",
+  "title": "HDDHub visual tuning (opacity, shadows, brightness, scale, arm angles)",
   "requirements": [
     {
-      "id": "REQ-75",
-      "summary": "Create frontend/public (if missing) and add the five canonical PNG assets so existing ASSET_PATHS/fallback chains can load them.",
+      "id": "REQ-89",
+      "summary": "Adjust HDDHub arm rotation mapping to 42° (lane 1/index 0) through 20° (lane 13/last) with linear interpolation and default/rest at 42° when no hover/selection.",
       "acceptanceCriteria": [
-        "`frontend/public/` exists in the repository after the change.",
-        "The five canonical files `bg.png`, `vinyl.png`, `bodyhdd.png`, `disk.png`, `arm.png` exist directly under `frontend/public/` (not nested).",
-        "On a fresh build/preview, the background and HDD hub images load without 404s when viewing the deployed site."
+        "With no hovered or selected category, the HDD arm renders at 42° (lane 1).",
+        "Hovering/selecting the last category maps the arm to 20°.",
+        "All intermediate lanes map linearly between 42° and 20° with no discontinuities.",
+        "No other hover/click behaviors change (hover moves arm and spins platter; click still opens the overlay and sets selected lane)."
       ],
       "file_operations": [
         {
-          "path": "frontend/public/bg.png",
-          "operation": "create",
-          "description": "Add the user-uploaded PNG to the repo at this exact canonical path/filename so existing asset resolution can load it."
-        },
-        {
-          "path": "frontend/public/vinyl.png",
-          "operation": "create",
-          "description": "Add the user-uploaded PNG to the repo at this exact canonical path/filename so existing asset resolution can load it."
-        },
-        {
-          "path": "frontend/public/bodyhdd.png",
-          "operation": "create",
-          "description": "Add the user-uploaded PNG to the repo at this exact canonical path/filename so existing asset resolution can load it."
-        },
-        {
-          "path": "frontend/public/disk.png",
-          "operation": "create",
-          "description": "Add the user-uploaded PNG to the repo at this exact canonical path/filename so existing asset resolution can load it."
-        },
-        {
-          "path": "frontend/public/arm.png",
-          "operation": "create",
-          "description": "Add the user-uploaded PNG to the repo at this exact canonical path/filename so existing asset resolution can load it."
+          "path": "frontend/src/components/StudioComponents.tsx",
+          "operation": "modify",
+          "description": "Update HDDHub arm angle constants and interpolation logic so categories[0] maps to 42°, categories[last] maps to 20°, and the default/rest arm angle uses the lane 1 angle when there is no hoveredCategoryId and no selectedCategoryId; preserve existing hover-driven arm movement and platter spin behavior."
         }
       ]
     },
     {
-      "id": "REQ-76",
-      "summary": "Constrain changes to the three selected HDDHub <img> elements while ensuring they render the canonical body/disk/arm public assets via the existing fallback chains.",
+      "id": "REQ-90",
+      "summary": "Apply 75% opacity to the full HDDHub visualization only (body + platter + arm), without affecting the left menu or the fixed VinylPlayer overlay, and without breaking interactions.",
       "acceptanceCriteria": [
-        "In the rendered UI, the HDD body, platter, and arm are visibly present (not missing/transparent placeholders) when the canonical PNGs are available.",
-        "Browser network tab shows successful loads (200) for `bodyhdd.png`, `disk.png`, and `arm.png` from the deployed base path (no root-absolute `/bodyhdd.png` style breakage on subpaths).",
-        "No other, non-selected elements are modified as part of this change."
+        "The HDDHub composite (body, disk, arm) renders at ~0.75 opacity as a whole.",
+        "The left-side text/menu and the top-right VinylPlayer retain their current opacity/appearance.",
+        "Hover/click interactions remain fully functional (opacity change must not disable pointer interactions)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/HDDHub.tsx",
+          "path": "frontend/src/components/StudioComponents.tsx",
           "operation": "modify",
-          "description": "Update only the three selected <img> elements (HDD body, disk, arm layers) to add minimal, non-styling attributes (e.g., identifiers for verification) while keeping their src values bound to the existing hddBodyFallbacks/hddDiskFallbacks/hddArmFallbacks chains so they resolve to the canonical public assets when present."
+          "description": "Wrap the HDDHub rendered layers (body, platter, arm) in a dedicated container that applies overall opacity ~0.75 to the composite only (not the rest of the layout), ensuring pointer interactions remain enabled and unchanged."
+        }
+      ]
+    },
+    {
+      "id": "REQ-91",
+      "summary": "Reduce HDD platter brightness to improve contrast while keeping the existing centered spin animation unchanged.",
+      "acceptanceCriteria": [
+        "The disk/platter appears visibly dimmer than before (subtle darkening).",
+        "The disk still spins around its visual center with the existing animation timing/behavior.",
+        "Only the platter brightness changes; no unintended changes to the body or arm brightness."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/StudioComponents.tsx",
+          "operation": "modify",
+          "description": "Adjust only the platter image layer styling to appear subtly dimmer (e.g., via a brightness filter applied to the platter image element/wrapper), keeping the current animate-disk-spin behavior and center transformOrigin intact."
+        }
+      ]
+    },
+    {
+      "id": "REQ-92",
+      "summary": "Add a subtle, realistic arm shadow between the arm and platter layers that follows the arm rotation.",
+      "acceptanceCriteria": [
+        "A subtle, realistic-looking shadow appears under the arm, visibly separating it from the platter.",
+        "The shadow does not create harsh edges or overpower the HDD visuals (keeps the existing restrained aesthetic).",
+        "The shadow follows the arm position/rotation (i.e., remains consistent as the arm moves between lanes)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "Add a small CSS utility/class for the HDDHub arm shadow styling (soft blur, low opacity) intended to sit between platter and arm layers, without introducing new glow/highlight effects."
+        },
+        {
+          "path": "frontend/src/components/StudioComponents.tsx",
+          "operation": "modify",
+          "description": "Insert an arm-shadow layer element in HDDHub between the platter and arm DOM layers, positioned/rotated with the same transform + transformOrigin as the arm so the shadow tracks arm movement; ensure it is subtle and does not intercept pointer events."
+        }
+      ]
+    },
+    {
+      "id": "REQ-93",
+      "summary": "Reduce platter render size by ~2% while preserving 1:1 aspect ratio and centered rotation/spin behavior.",
+      "acceptanceCriteria": [
+        "The platter render size is ~2% smaller than the current live version.",
+        "The platter remains perfectly square (1:1) and still spins around its own visual center.",
+        "No changes to lane mapping logic or hover/click behavior are introduced by this size adjustment."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/StudioComponents.tsx",
+          "operation": "modify",
+          "description": "Adjust the platter layer rendering so the visible platter image is ~2% smaller (e.g., via an inner scale wrapper) while keeping the outer spinning wrapper’s centered rotation behavior and 1:1 aspect ratio unchanged."
+        }
+      ]
+    },
+    {
+      "id": "REQ-94",
+      "summary": "Scale down the entire HDDHub visualization by ~25% while keeping it centered and preserving layer alignment and interaction alignment.",
+      "acceptanceCriteria": [
+        "The full HDDHub visualization appears ~25% smaller than before while remaining centered in the right column.",
+        "All three layers (body/platter/arm) remain correctly aligned after scaling.",
+        "Hover and click interactions still work exactly as before (no broken hover zones or misalignment-related interaction bugs)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/StudioComponents.tsx",
+          "operation": "modify",
+          "description": "Scale the full HDDHub composite (body/platter/arm together) down by ~25% while keeping it centered within its existing right-column container, ensuring all absolute-positioned layers remain aligned and interaction alignment remains consistent with visuals."
         }
       ]
     }

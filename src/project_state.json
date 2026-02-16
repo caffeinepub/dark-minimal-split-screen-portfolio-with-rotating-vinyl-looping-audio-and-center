@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 49,
-  "summary": "Dark, minimal, experimental portfolio website (React + TypeScript, GitHub Pages) with split layout over a dimmed full-screen background image, left-side interactive categories that open a large centered glass-morphism overlay panel (replacing the old small modal), a small fixed top-right vinyl play/pause controller for looping audio, and a full-height right-side interactive HDD hub (body/platter/arm) that reacts to category hover/click with lane-based arm movement and platter spin; glowing lane/ring highlight effects are removed/disabled for now.",
+  "projectStateVersion": 57,
+  "summary": "Dark, minimal, experimental portfolio site with split layout + glass-morphism overlay panels and fixed top-right vinyl audio control, plus right-side HDD hub interactions; now also includes a single-user, persistent, backend-stored (Motoko canister) photo gallery accessible as a new left-menu category that opens in the same overlay.",
   "architectural_notes": [
     "Use React + TypeScript (minimal additional framework usage) and ensure build/deploy is compatible with GitHub Pages.",
     "Category content structure: modal header title + short paragraph placeholder; modal is centered (not slide-in) with glass-morphism blur/transparency.",
@@ -26,7 +26,7 @@
     "HDD arm initial/default orientation is incorrectly set near 90° in the previous draft; must initialize at lane 1 angle (45° from horizontal) and map lanes 1→13 down to 35°.",
     "User reports that in the current live build (Version 20), no images are visible (assets still not resolving/rendering)."
   ],
-  "isFixRequest": true,
+  "isFixRequest": false,
   "existing_features": [
     {
       "id": "feature-create-a-responsive-horizontally-split-flexbox-portfolio-layout-over-a-full-screen-background-image-with-reduced-brightness-and-white-typography-left-column-must-include-the-site-title-shibhi-studio-an-italic-cursive-tagline-not-just-for-a-television-teleport-to-where-it-s-written-and-a-vertical-list-of-interactive-categories-photography-blender-animations-design-electronics",
@@ -571,6 +571,126 @@
         "REQ-71"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-add-a-new-left-side-category-named-photo-gallery-that-appears-in-the-existing-category-list-and-opens-the-existing-glass-morphism-categoryoverlay-when-clicked-consistent-with-all-other-categories",
+      "title": "Add a new left-side category named \"Photo Gallery\" that appears in the existing category list and opens the existing glass-morphism CategoryOverlay when clicked, consistent with all other categories.",
+      "reqIds": [
+        "REQ-77"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-right-side-hddhub-lane-mapping-to-support-the-updated-number-of-categories-including-photo-gallery-so-hover-click-interactions-remain-correct-and-stable-for-every-category-in-the-left-menu",
+      "title": "Update the right-side HDDHub lane mapping to support the updated number of categories (including \"Photo Gallery\") so hover/click interactions remain correct and stable for every category in the left menu.",
+      "reqIds": [
+        "REQ-78"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-extend-the-categoryoverlay-content-system-to-support-a-dedicated-photo-gallery-overlay-layout-that-shows-1-an-image-upload-ui-for-admins-and-2-a-responsive-gallery-grid-of-uploaded-images-loaded-from-the-backend-canister",
+      "title": "Extend the CategoryOverlay content system to support a dedicated \"Photo Gallery\" overlay layout that shows: (1) an image upload UI for admins, and (2) a responsive gallery grid of uploaded images loaded from the backend canister.",
+      "reqIds": [
+        "REQ-81"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-wire-the-frontend-gallery-overlay-to-the-motoko-backend-using-the-existing-actor-setup-and-react-query-patterns-so-that-listing-uploading-and-fetching-image-bytes-are-robust-cancellable-and-show-loading-error-states-inside-the-overlay",
+      "title": "Wire the frontend gallery overlay to the Motoko backend using the existing actor setup and React Query patterns so that listing, uploading, and fetching image bytes are robust, cancellable, and show loading/error states inside the overlay.",
+      "reqIds": [
+        "REQ-82"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-single-minimal-combined-folder-structure-that-contains-only-the-essential-maintainable-frontend-react-typescript-backend-motoko-source-needed-for-the-current-version-24-behavior-to-look-and-work-the-same-optimized-for-committing-to-a-github-repository",
+      "title": "Create a single, minimal combined folder structure that contains only the essential, maintainable frontend (React/TypeScript) + backend (Motoko) source needed for the current Version 24 behavior to look and work the same, optimized for committing to a GitHub repository.",
+      "reqIds": [
+        "REQ-83"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-repository-documentation-file-that-explains-exactly-what-must-be-committed-to-github-for-the-site-to-look-work-the-same-including-the-minimal-folder-tree-which-files-are-mandatory-and-the-github-pages-build-deploy-steps-for-the-frontend-plus-separate-deployment-steps-for-the-motoko-backend-canister",
+      "title": "Add a repository documentation file that explains exactly what must be committed to GitHub for the site to look/work the same, including the minimal folder tree, which files are mandatory, and the GitHub Pages build/deploy steps for the frontend plus separate deployment steps for the Motoko backend canister.",
+      "reqIds": [
+        "REQ-84"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-frontend-html-entry-so-it-remains-compatible-with-github-pages-subpath-hosting-by-avoiding-a-root-absolute-module-script-path-for-the-vite-entrypoint",
+      "title": "Fix the frontend HTML entry so it remains compatible with GitHub Pages subpath hosting by avoiding a root-absolute module script path for the Vite entrypoint.",
+      "reqIds": [
+        "REQ-85"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-reduce-the-frontend-source-file-count-by-consolidating-react-components-and-small-utility-modules-into-fewer-files-while-preserving-the-current-ui-ux-and-behavior-exactly-split-layout-fixed-top-right-vinylplayer-right-side-hddhub-hover-click-interactions-and-categoryoverlay-including-photo-gallery-panel",
+      "title": "Reduce the frontend source file count by consolidating React components and small utility modules into fewer files while preserving the current UI/UX and behavior exactly (split layout, fixed top-right VinylPlayer, right-side HDDHub hover/click interactions, and CategoryOverlay including Photo Gallery panel).",
+      "reqIds": [
+        "REQ-86"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-current-build-deployment-errors-so-the-minimized-repo-successfully-builds-and-runs-locally-and-is-deployable-for-both-a-github-pages-frontend-hosting-subpath-safe-and-b-internet-computer-dfx-backend-canister-deployment-without-changing-the-visible-design-or-feature-set",
+      "title": "Fix the current build/deployment errors so the minimized repo successfully builds and runs locally and is deployable for both (a) GitHub Pages frontend hosting (subpath-safe) and (b) Internet Computer (dfx) backend canister deployment, without changing the visible design or feature set.",
+      "reqIds": [
+        "REQ-88"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-hddhub-arm-rotation-mapping-so-lane-category-1-index-0-in-frontend-src-data-categories-ts-renders-at-an-absolute-42-rotation-from-horizontal-and-lane-category-13-last-index-renders-at-an-absolute-20-rotation-from-horizontal-with-linear-interpolation-across-all-lanes-keep-the-default-rest-arm-angle-at-the-lane-1-angle-when-there-is-no-hoveredcategoryid-and-no-selectedcategoryid",
+      "title": "Update the HDDHub arm rotation mapping so lane/category 1 (index 0 in frontend/src/data/categories.ts) renders at an absolute 42° rotation from horizontal and lane/category 13 (last index) renders at an absolute 20° rotation from horizontal, with linear interpolation across all lanes; keep the default/rest arm angle at the lane 1 angle when there is no hoveredCategoryId and no selectedCategoryId.",
+      "reqIds": [
+        "REQ-89"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-apply-an-overall-opacity-of-75-to-the-entire-hddhub-visual-body-platter-arm-together-without-affecting-the-left-side-menu-or-the-fixed-vinylplayer-overlay",
+      "title": "Apply an overall opacity of 75% to the entire HDDHub visual (body + platter + arm together), without affecting the left-side menu or the fixed VinylPlayer overlay.",
+      "reqIds": [
+        "REQ-90"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-reduce-the-hdd-platter-disk-layer-brightness-to-improve-contrast-while-preserving-the-existing-disk-spin-animation-behavior-and-centered-rotation",
+      "title": "Reduce the HDD platter (disk layer) brightness to improve contrast while preserving the existing disk spin animation behavior and centered rotation.",
+      "reqIds": [
+        "REQ-91"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-subtle-shadow-cast-by-the-hdd-arm-onto-the-platter-shadow-should-visually-sit-between-the-arm-and-the-disk-layers-to-better-differentiate-the-arm-from-the-platter",
+      "title": "Add a subtle shadow cast by the HDD arm onto the platter (shadow should visually sit between the arm and the disk layers) to better differentiate the arm from the platter.",
+      "reqIds": [
+        "REQ-92"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-reduce-the-rendered-size-of-the-platter-image-layer-by-approximately-2-relative-to-the-current-platter-render-size-without-changing-its-aspect-ratio-must-stay-1-1-or-its-centered-rotation-behavior",
+      "title": "Reduce the rendered size of the platter image layer by approximately 2% (relative to the current platter render size), without changing its aspect ratio (must stay 1:1) or its centered rotation behavior.",
+      "reqIds": [
+        "REQ-93"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-reduce-the-entire-hddhub-rendered-size-by-approximately-25-scale-down-the-full-hdd-visualization-including-body-platter-and-arm-while-keeping-it-centered-in-the-right-column-and-preserving-all-layering-offsets-and-interaction-hit-areas",
+      "title": "Reduce the entire HDDHub rendered size by approximately 25% (scale down the full HDD visualization including body, platter, and arm), while keeping it centered in the right column and preserving all layering, offsets, and interaction hit areas.",
+      "reqIds": [
+        "REQ-94"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -792,6 +912,96 @@
       "reqIds": [
         "REQ-76"
       ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-42",
+      "summary": "Add a single-user (admin-only) photo gallery portfolio upload area: users can upload images that persist in a Motoko backend canister and can be viewed later in a gallery UI",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-43",
+      "summary": "Add a new left-side menu category for the Photo Gallery that opens the existing large glass-morphism overlay and displays the gallery content + upload UI",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-44",
+      "summary": "Implement Motoko canister storage and APIs for image upload/retrieval (persistent storage), and wire the React frontend overlay gallery to these endpoints",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-47",
+      "summary": "Implement persistent backend storage (Motoko) for uploaded gallery images in backend/main.mo, including stable storage, image metadata, and APIs to create/list/fetch images.",
+      "reqIds": [
+        "REQ-79"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-48",
+      "summary": "Define and enforce single-user (admin-only) modification semantics for the gallery backend APIs without building a multi-user authentication system: gallery viewing/listing must be available, but mutating operations (upload/delete if implemented) must be restricted to the canister controller principal(s) (or another explicit single-admin rule).",
+      "reqIds": [
+        "REQ-80"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-49",
+      "summary": "Provide a single combined minimal folder structure (frontend React/TS + Motoko backend) containing only essential, maintainable code and required files for Version 24 to work correctly and be optimized for GitHub deployment (no extra/boilerplate files).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-50",
+      "summary": "Generate a GitHub-ready minimal combined repo (frontend + Motoko backend) by aggressively reducing file count (including combining React components into fewer files) while preserving all existing visuals/features exactly, and fix the current build/deployment errors so it deploys successfully",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-52",
+      "summary": "Reduce the backend file count (where possible) while preserving all existing Motoko behavior, keeping all canister logic in the single main actor (backend/main.mo) and maintaining the current access control + photo gallery storage APIs used by the frontend.",
+      "reqIds": [
+        "REQ-87"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-53",
+      "summary": "Add a subtle shadow cast by the HDD arm onto the platter to better differentiate arm vs platter layers",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-54",
+      "summary": "Reduce HDD platter brightness (darken platter layer) for better contrast",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-55",
+      "summary": "Set overall HDDHub opacity to 75% (apply to body + platter + arm as a whole)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-56",
+      "summary": "Update HDD arm lane rotation mapping to absolute angles: lane 1 = 42° from horizontal and lane 13 = 20° from horizontal (linear interpolation across 13 lanes)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-57",
+      "summary": "Reduce platter (disk.png) rendered size by ~2%",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-58",
+      "summary": "Reduce the entire HDDHub rendered size by ~25%",
+      "reqIds": [],
       "status": "pending"
     }
   ],

@@ -1,43 +1,92 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-16T13:03:53.699Z",
+  "generatedAt": "2026-02-16T16:51:47.679Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
-    "implemented": 0,
+    "total": 6,
+    "implemented": 6,
     "items": [
       {
-        "id": "REQ-75",
-        "summary": "Create the missing `frontend/public` directory (if it does not exist) and add the 5 user-uploaded PNG files into it using these exact canonical filenames so the app’s existing asset resolution (`ASSET_PATHS` / fallback chains) can load them:\n- `frontend/public/bg.png`\n- `frontend/public/vinyl.png`\n- `frontend/public/bodyhdd.png`\n- `frontend/public/disk.png`\n- `frontend/public/arm.png`",
-        "status": "missing",
+        "id": "REQ-89",
+        "summary": "Update the HDDHub arm rotation mapping so lane/category 1 (index 0 in frontend/src/data/categories.ts) renders at an absolute 42° rotation from horizontal and lane/category 13 (last index) renders at an absolute 20° rotation from horizontal, with linear interpolation across all lanes; keep the default/rest arm angle at the lane 1 angle when there is no hoveredCategoryId and no selectedCategoryId.",
+        "status": "implemented",
         "plannedFiles": [
-          "frontend/public/bg.png",
-          "frontend/public/vinyl.png",
-          "frontend/public/bodyhdd.png",
-          "frontend/public/disk.png",
-          "frontend/public/arm.png"
+          "frontend/src/components/StudioComponents.tsx"
         ],
-        "matchedFiles": []
+        "matchedFiles": [
+          "frontend/src/components/StudioComponents.tsx"
+        ]
       },
       {
-        "id": "REQ-76",
-        "summary": "Ensure the three selected HDDHub `<img>` elements render the newly added canonical public assets (no code changes outside these selected elements). The selected elements are:\n- Element 1 XPath: `/html[1]/body[1]/div[1]/div[1]/div[2]/div[2]/div[2]/div[1]/div[1]/div[1]/div[1]/img[1]`\n- Element 2 XPath: `/html[1]/body[1]/div[1]/div[1]/div[2]/div[2]/div[2]/div[1]/div[1]/div[2]/img[1]`\n- Element 3 XPath: `/html[1]/body[1]/div[1]/div[1]/div[2]/div[2]/div[2]/div[1]/div[1]/img[1]`\nThese correspond to the HDD hub’s body, disk, and arm image layers, which must load `bodyhdd.png`, `disk.png`, and `arm.png` from the public root via the existing fallback chains.",
-        "status": "missing",
+        "id": "REQ-90",
+        "summary": "Apply an overall opacity of 75% to the entire HDDHub visual (body + platter + arm together), without affecting the left-side menu or the fixed VinylPlayer overlay.",
+        "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/HDDHub.tsx"
+          "frontend/src/components/StudioComponents.tsx"
         ],
-        "matchedFiles": []
+        "matchedFiles": [
+          "frontend/src/components/StudioComponents.tsx"
+        ]
+      },
+      {
+        "id": "REQ-91",
+        "summary": "Reduce the HDD platter (disk layer) brightness to improve contrast while preserving the existing disk spin animation behavior and centered rotation.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/StudioComponents.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/StudioComponents.tsx"
+        ]
+      },
+      {
+        "id": "REQ-92",
+        "summary": "Add a subtle shadow cast by the HDD arm onto the platter (shadow should visually sit between the arm and the disk layers) to better differentiate the arm from the platter.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/index.css",
+          "frontend/src/components/StudioComponents.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/index.css",
+          "frontend/src/components/StudioComponents.tsx"
+        ]
+      },
+      {
+        "id": "REQ-93",
+        "summary": "Reduce the rendered size of the platter image layer by approximately 2% (relative to the current platter render size), without changing its aspect ratio (must stay 1:1) or its centered rotation behavior.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/StudioComponents.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/StudioComponents.tsx"
+        ]
+      },
+      {
+        "id": "REQ-94",
+        "summary": "Reduce the entire HDDHub rendered size by approximately 25% (scale down the full HDD visualization including body, platter, and arm), while keeping it centered in the right column and preserving all layering, offsets, and interaction hit areas.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/StudioComponents.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/StudioComponents.tsx"
+        ]
       }
     ]
   },
   "changedFiles": [
     "build-request.json",
     "feature_evidence.json",
+    "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
+    "frontend/src/components/StudioComponents.tsx",
+    "frontend/src/index.css",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

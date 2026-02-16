@@ -83,4 +83,10 @@ export const categories: Category[] = [
     description:
       'Get in touch and start a conversation. Whether you are interested in collaboration, have questions, or just want to say hello, let us connect and explore opportunities together.',
   },
+  {
+    id: 'photogallery',
+    name: 'Photo Gallery',
+    description:
+      'A curated collection of uploaded images. Browse through the portfolio of visual work, showcasing creativity and artistic vision through carefully selected photographs.',
+  },
 ];

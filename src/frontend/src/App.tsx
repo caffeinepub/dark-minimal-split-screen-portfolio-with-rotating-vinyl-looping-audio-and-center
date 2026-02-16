@@ -1,8 +1,5 @@
 import { useState } from 'react';
-import PortfolioShell from './components/PortfolioShell';
-import VinylPlayer from './components/VinylPlayer';
-import HDDHub from './components/HDDHub';
-import CategoryOverlay from './components/CategoryOverlay';
+import { PortfolioShell, VinylPlayer, HDDHub, CategoryOverlay } from './components/StudioComponents';
 import { categories, type Category } from './data/categories';
 
 export default function App() {
@@ -11,16 +8,13 @@ export default function App() {
 
   return (
     <PortfolioShell>
-      {/* Fixed Top-Right Vinyl Player Overlay */}
       <div className="fixed right-4 top-4 z-50 lg:right-8 lg:top-8">
         <VinylPlayer compact />
       </div>
 
       <div className="flex min-h-screen w-full flex-col lg:flex-row">
-        {/* Left Column */}
         <div className="flex flex-1 flex-col justify-center px-8 py-16 lg:px-16 lg:py-24">
           <div className="max-w-xl space-y-12">
-            {/* Title */}
             <div className="space-y-2">
               <h1 className="text-5xl font-light tracking-tight text-white lg:text-6xl">
                 shibhi.studio
@@ -30,12 +24,10 @@ export default function App() {
               </p>
             </div>
 
-            {/* Tagline */}
             <p className="font-serif text-xl italic text-white/90 lg:text-2xl">
               Not just for a television, Teleport to where it's written.
             </p>
 
-            {/* Category List */}
             <nav className="space-y-4" aria-label="Portfolio categories">
               {categories.map((category) => (
                 <button
@@ -54,7 +46,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* Right Column - HDD Hub */}
         <div className="flex flex-1 items-center justify-center px-8 py-16 lg:px-16 lg:py-24">
           <HDDHub
             hoveredCategoryId={hoveredCategoryId}
@@ -63,7 +54,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* Category Overlay */}
       <CategoryOverlay
         category={selectedCategory}
         open={!!selectedCategory}
