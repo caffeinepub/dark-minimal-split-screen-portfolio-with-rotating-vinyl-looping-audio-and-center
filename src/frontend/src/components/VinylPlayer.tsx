@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { Play, Pause } from 'lucide-react';
 import { Button } from './ui/button';
+import { ASSET_PATHS } from '../lib/assetUrls';
+import { vinylFallbacks } from '../lib/assetFallbacks';
 
 interface VinylPlayerProps {
   compact?: boolean;
@@ -8,11 +10,13 @@ interface VinylPlayerProps {
 
 export default function VinylPlayer({ compact = false }: VinylPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [vinylSrc, setVinylSrc] = useState(vinylFallbacks[0]);
+  const [fallbackIndex, setFallbackIndex] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    // Initialize audio element
-    const audio = new Audio('/audio.mp3');
+    // Initialize audio element with base-path-safe URL
+    const audio = new Audio(ASSET_PATHS.audio);
     audio.loop = true;
     audioRef.current = audio;
 
@@ -36,6 +40,13 @@ export default function VinylPlayer({ compact = false }: VinylPlayerProps) {
     }
   };
 
+  const handleImageError = () => {
+    if (fallbackIndex < vinylFallbacks.length - 1) {
+      setFallbackIndex(prev => prev + 1);
+      setVinylSrc(vinylFallbacks[fallbackIndex + 1]);
+    }
+  };
+
   const vinylSize = compact ? 'h-24 w-24 lg:h-32 lg:w-32' : 'h-64 w-64 lg:h-96 lg:w-96';
   const buttonSize = compact ? 'h-10 w-10 lg:h-12 lg:w-12' : 'h-16 w-16';
   const iconSize = compact ? 'h-5 w-5 lg:h-6 lg:w-6' : 'h-8 w-8';
@@ -45,7 +56,7 @@ export default function VinylPlayer({ compact = false }: VinylPlayerProps) {
       {/* Vinyl Image */}
       <div className="relative">
         <img
-          src="/vinyl.png"
+          src={vinylSrc}
           alt="Vinyl record"
           className={`${vinylSize} transition-transform duration-1000 ease-linear ${
             isPlaying ? 'animate-spin-slow' : ''
@@ -55,12 +66,7 @@ export default function VinylPlayer({ compact = false }: VinylPlayerProps) {
             animationIterationCount: 'infinite',
             imageRendering: 'crisp-edges',
           }}
-          onError={(e) => {
-            const target = e.target as HTMLImageElement;
-            if (target.src !== '/assets/generated/vinyl.dim_1200x1200.png') {
-              target.src = '/assets/generated/vinyl.dim_1200x1200.png';
-            }
-          }}
+          onError={handleImageError}
         />
 
         {/* Play/Pause Button - Centered on Vinyl */}

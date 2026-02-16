@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 23,
-  "summary": "Dark, minimal, experimental portfolio website built with React + TypeScript for deployment on GitHub Pages, featuring split layout over a dimmed full-screen background image, left-side interactive categories that open glass-morphism modals, a small fixed top-right vinyl play/pause controller for looping audio, and a full-height right-side interactive HDD hub (body/platter/arm) that reacts to category hover/click with lane-based arm movement and glow effects.",
+  "projectStateVersion": 47,
+  "summary": "Dark, minimal, experimental portfolio website (React + TypeScript, GitHub Pages) with split layout over a dimmed full-screen background image, left-side interactive categories that open a large centered glass-morphism overlay panel (replacing the old small modal), a small fixed top-right vinyl play/pause controller for looping audio, and a full-height right-side interactive HDD hub (body/platter/arm) that reacts to category hover/click with lane-based arm movement and platter spin; glowing lane/ring highlight effects are removed/disabled for now.",
   "architectural_notes": [
     "Use React + TypeScript (minimal additional framework usage) and ensure build/deploy is compatible with GitHub Pages.",
     "Category content structure: modal header title + short paragraph placeholder; modal is centered (not slide-in) with glass-morphism blur/transparency.",
@@ -18,13 +18,13 @@
     "Live showcase currently shows a small vinyl at the bottom instead of the intended right-side HDD hub (bodyhdd/disk/arm layering), indicating HDD hub rendering/mapping is incorrect.",
     "HDD platter rotation axis/transform-origin is incorrect, causing disk.png to spin around the wrong point.",
     "HDD arm (arm.png) is rendered too large relative to the platter; needs scaling down.",
-    "Glowing orbit/lane highlight rings are too large; need resizing to match platter proportions.",
-    "Lane glow rings are not correctly aligned to the arm tip during movement; they change independently instead of staying tangent/in contact with the arm head.",
     "Platter positioning within the vertically rectangular HDD body is off; disk should sit slightly higher within bodyhdd.png.",
-    "Glow ring size scaling is inverted (currently grows when arm moves down and shrinks when arm moves up); must be reversed while staying in contact with arm tip.",
     "Arm needs repositioning lower and slightly inward to the right; current placement is too high/too far out.",
     "HDD arm rotation range is too large (swings too far downward); must be capped to roughly a ~30° downward limit relative to the platter outline.",
-    "Platter (disk.png) is not being rendered with a true 1:1 square aspect; needs square sizing/placement based on the uploaded disk.png."
+    "Platter (disk.png) is not being rendered with a true 1:1 square aspect; needs square sizing/placement based on the uploaded disk.png.",
+    "After removing glow ring/line effects, ensure no leftover glow artifacts/styles/DOM nodes remain and that hover/click interactions still provide clean feedback via arm movement/platter spin only.",
+    "HDD arm initial/default orientation is incorrectly set near 90° in the previous draft; must initialize at lane 1 angle (45° from horizontal) and map lanes 1→13 down to 35°.",
+    "User reports that in the current live build (Version 20), no images are visible (assets still not resolving/rendering)."
   ],
   "isFixRequest": true,
   "existing_features": [
@@ -355,6 +355,222 @@
         "REQ-42"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-update-the-hddhub-glow-ring-sizing-so-the-ring-radius-changes-smoothly-across-all-13-lanes-from-lane-1-through-lane-13-no-plateaus-where-the-first-lanes-produce-the-same-ring-size-the-glow-ring-radius-must-continuously-decrease-as-the-user-moves-from-category-1-13-while-remaining-tangent-in-contact-with-the-arm-tip",
+      "title": "Update the HDDHub glow-ring sizing so the ring radius changes smoothly across all 13 lanes from lane 1 through lane 13 (no plateaus where the first lanes produce the same ring size). The glow-ring radius must continuously decrease as the user moves from category 1 → 13 while remaining tangent/in-contact with the arm tip.",
+      "reqIds": [
+        "REQ-43"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-interpret-and-enforce-the-hdd-arm-rotation-constraint-as-the-arm-must-not-rotate-more-than-30-downward-from-horizontal-update-the-lane-rotation-mapping-so-all-13-lanes-fit-within-the-allowed-rotation-range-and-ensure-the-arm-never-exceeds-this-maximum-downward-angle-during-hover-or-selection-transitions",
+      "title": "Interpret and enforce the HDD arm rotation constraint as: the arm must not rotate more than 30° downward from horizontal. Update the lane→rotation mapping so all 13 lanes fit within the allowed rotation range, and ensure the arm never exceeds this maximum downward angle during hover or selection transitions.",
+      "reqIds": [
+        "REQ-44"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-hddhub-layout-to-use-strict-aspect-ratio-holders-while-keeping-images-fit-inside-no-stretching-hdd-body-holder-aspect-ratio-3-4-arm-holder-aspect-ratio-1-6-4-and-platter-holder-aspect-ratio-1-1-the-rendered-layering-must-still-use-the-real-uploaded-assets-only-bodyhdd-png-disk-png-arm-png",
+      "title": "Update the HDDHub layout to use strict aspect-ratio holders while keeping images fit inside (no stretching): HDD body holder aspect ratio 3:4, arm holder aspect ratio 1.6:4, and platter holder aspect ratio 1:1. The rendered layering must still use the real uploaded assets only: /bodyhdd.png, /disk.png, /arm.png.",
+      "reqIds": [
+        "REQ-45"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-apply-the-specified-vertical-offsets-in-the-hddhub-visualization-and-keep-all-moving-parts-inside-the-hdd-body-bounds-throughout-movement-keep-the-platter-positioned-at-20-on-the-y-axis-relative-to-its-prior-reference-and-keep-the-arm-assembly-positioned-at-35-on-the-y-axis-relative-to-its-prior-reference-while-preserving-correct-disk-centered-rotation",
+      "title": "Apply the specified vertical offsets in the HDDHub visualization and keep all moving parts inside the HDD body bounds throughout movement: keep the platter positioned at -20% on the Y axis relative to its prior reference, and keep the arm assembly positioned at -35% on the Y axis relative to its prior reference, while preserving correct disk-centered rotation.",
+      "reqIds": [
+        "REQ-46"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-slightly-increase-the-rendered-size-of-the-hdd-arm-arm-png-while-maintaining-the-required-1-6-4-arm-holder-aspect-ratio-and-ensuring-the-arm-remains-fully-inside-the-hdd-body-image-for-the-full-13-lane-motion-range",
+      "title": "Slightly increase the rendered size of the HDD arm (arm.png) while maintaining the required 1.6:4 arm holder aspect ratio and ensuring the arm remains fully inside the HDD body image for the full 13-lane motion range.",
+      "reqIds": [
+        "REQ-47"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-remove-disable-the-hddhub-glowing-lane-highlight-visuals-entirely-no-glow-line-ring-rendered-and-remove-all-related-glow-geometry-calculations-so-that-hover-click-feedback-is-only-via-platter-spin-and-arm-movement",
+      "title": "Remove/disable the HDDHub glowing lane highlight visuals entirely (no glow line/ring rendered) and remove all related glow geometry calculations so that hover/click feedback is only via platter spin and arm movement.",
+      "reqIds": [
+        "REQ-48"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-reduce-the-rendered-size-of-the-hdd-arm-arm-png-by-approximately-40-relative-to-the-current-draft-version-11-rendering-while-keeping-the-arm-fully-within-the-hdd-body-bounds-across-the-full-13-lane-movement-range",
+      "title": "Reduce the rendered size of the HDD arm (arm.png) by approximately 40% relative to the current Draft Version 11 rendering, while keeping the arm fully within the HDD body bounds across the full 13-lane movement range.",
+      "reqIds": [
+        "REQ-49"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-adjust-the-hdd-arm-rotation-pivot-so-the-arm-rotates-around-a-bottom-middle-axis-point-that-is-slightly-below-the-arm-s-visual-center-i-e-set-transform-origin-accordingly-on-the-rotating-arm-container-so-that-rotation-looks-physically-correct-during-lane-movements",
+      "title": "Adjust the HDD arm rotation pivot so the arm rotates around a bottom-middle axis point that is slightly below the arm’s visual center (i.e., set transform-origin accordingly on the rotating arm container) so that rotation looks physically correct during lane movements.",
+      "reqIds": [
+        "REQ-50"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-increase-the-rendered-size-of-the-hdd-platter-disk-png-by-approximately-35-relative-to-the-current-draft-version-11-rendering-preserving-the-strict-1-1-aspect-ratio-and-keeping-the-disk-spinning-around-its-own-visual-center",
+      "title": "Increase the rendered size of the HDD platter (disk.png) by approximately 35% relative to the current Draft Version 11 rendering, preserving the strict 1:1 aspect ratio and keeping the disk spinning around its own visual center.",
+      "reqIds": [
+        "REQ-51"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-hddhub-arm-rotation-mapping-so-the-read-write-arm-can-swing-both-upward-and-downward-within-a-total-rotation-envelope-of-approximately-35-42-degrees-total-range-and-remap-all-13-category-lanes-evenly-across-this-new-bidirectional-range-hovered-selected-category-determines-the-active-lane-as-currently-implemented-this-change-must-replace-the-current-0-30-downward-only-mapping",
+      "title": "Update the HDDHub arm rotation mapping so the read/write arm can swing both upward and downward within a total rotation envelope of approximately 35–42 degrees (total range), and remap all 13 category lanes evenly across this new bidirectional range (hovered/selected category determines the active lane as currently implemented). This change must replace the current 0°→30° downward-only mapping.",
+      "reqIds": [
+        "REQ-52"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-hddhub-read-write-arm-rotation-mapping-so-that-lane-category-1-index-0-in-frontend-src-data-categories-ts-renders-at-an-absolute-45-rotation-from-horizontal-and-lane-category-13-index-12-renders-at-an-absolute-35-rotation-from-horizontal-with-a-linear-interpolation-across-all-13-lanes-remove-the-current-bidirectional-20-mapping-and-ensure-the-arm-never-initializes-rests-at-90-when-there-is-no-hoveredcategoryid-and-no-selectedcategoryid-the-arm-must-render-at-the-lane-1-angle-45-as-the-default-initial-rest-position",
+      "title": "Update the HDDHub read/write arm rotation mapping so that lane/category 1 (index 0 in frontend/src/data/categories.ts) renders at an absolute 45° rotation from horizontal and lane/category 13 (index 12) renders at an absolute 35° rotation from horizontal, with a linear interpolation across all 13 lanes. Remove the current bidirectional ±20° mapping and ensure the arm never initializes/rests at ~90°. When there is no hoveredCategoryId and no selectedCategoryId, the arm must render at the lane 1 angle (45°) as the default initial/rest position.",
+      "reqIds": [
+        "REQ-53"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-the-hddhub-visualization-move-the-disk-platter-disk-png-layer-upward-by-approximately-10-on-the-y-axis-relative-to-its-current-positioning-while-preserving-the-platter-s-true-1-1-aspect-ratio-and-its-centered-rotation-it-must-still-spin-around-its-own-visual-center",
+      "title": "In the HDDHub visualization, move the disk platter (disk.png layer) upward by approximately +10% on the Y-axis relative to its current positioning, while preserving the platter’s true 1:1 aspect ratio and its centered rotation (it must still spin around its own visual center).",
+      "reqIds": [
+        "REQ-54"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-slightly-reduce-the-rendered-size-of-the-hdd-arm-arm-png-in-hddhub-compared-to-its-current-size-while-keeping-it-fully-within-the-hdd-body-bounds-across-the-full-13-lane-motion-range-and-preserving-the-existing-lane-to-rotation-mapping-behavior",
+      "title": "Slightly reduce the rendered size of the HDD arm (arm.png) in HDDHub compared to its current size, while keeping it fully within the HDD body bounds across the full 13-lane motion range and preserving the existing lane-to-rotation mapping behavior.",
+      "reqIds": [
+        "REQ-55"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-adjust-the-hddhub-arm-rotation-pivot-transform-origin-so-the-arm-rotates-around-an-axis-point-that-is-slightly-up-from-the-bottom-of-the-arm-not-exactly-at-the-bottom-edge-while-keeping-the-rotation-visually-stable-and-physically-plausible-during-lane-transitions",
+      "title": "Adjust the HDDHub arm rotation pivot (transform-origin) so the arm rotates around an axis point that is slightly up from the bottom of the arm (not exactly at the bottom edge), while keeping the rotation visually stable and physically plausible during lane transitions.",
+      "reqIds": [
+        "REQ-56"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-adjust-the-hddhub-disk-platter-disk-png-vertical-positioning-so-the-platter-is-moved-upward-by-approximately-10-on-the-y-axis-relative-to-its-current-positioning-while-preserving-the-platter-s-strict-1-1-aspect-ratio-and-centered-rotation-it-must-still-spin-around-its-own-visual-center",
+      "title": "Adjust the HDDHub disk platter (disk.png) vertical positioning so the platter is moved upward by approximately +10% on the Y-axis relative to its current positioning, while preserving the platter’s strict 1:1 aspect ratio and centered rotation (it must still spin around its own visual center).",
+      "reqIds": [
+        "REQ-57"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-slightly-reduce-the-rendered-size-of-the-hddhub-read-write-arm-arm-png-compared-to-the-current-implementation-while-keeping-it-fully-within-the-bodyhdd-png-bounds-across-the-full-13-lane-movement-range-and-preserving-the-existing-lane-to-rotation-mapping-behavior",
+      "title": "Slightly reduce the rendered size of the HDDHub read/write arm (arm.png) compared to the current implementation, while keeping it fully within the bodyhdd.png bounds across the full 13-lane movement range and preserving the existing lane-to-rotation mapping behavior.",
+      "reqIds": [
+        "REQ-58"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-adjust-the-hddhub-arm-rotation-pivot-transform-origin-so-the-arm-rotates-around-an-axis-point-that-is-slightly-up-from-the-bottom-of-the-arm-not-exactly-at-the-bottom-edge-while-keeping-rotation-visually-stable-and-physically-plausible-during-lane-transitions",
+      "title": "Adjust the HDDHub arm rotation pivot/transform-origin so the arm rotates around an axis point that is slightly up from the bottom of the arm (not exactly at the bottom edge), while keeping rotation visually stable and physically plausible during lane transitions.",
+      "reqIds": [
+        "REQ-59"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-hddhub-disk-platter-vertical-positioning-to-apply-an-additional-fine-tune-offset-of-3-on-the-y-axis-relative-to-the-current-version-16-live-positioning-baseline-without-using-css-translatey-percent-of-element-height-semantics-i-e-treat-this-as-an-adjustment-to-the-existing-positioning-percentage-used-for-the-platter-layer",
+      "title": "Update the HDDHub disk platter vertical positioning to apply an additional fine-tune offset of -3% on the Y axis relative to the current Version 16 live positioning baseline, without using CSS translateY-percent-of-element-height semantics (i.e., treat this as an adjustment to the existing positioning percentage used for the platter layer).",
+      "reqIds": [
+        "REQ-60"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-hddhub-arm-assembly-vertical-positioning-to-apply-an-additional-fine-tune-offset-of-6-on-the-y-axis-relative-to-the-current-version-16-live-positioning-baseline-without-using-css-translatey-percent-of-element-height-semantics-i-e-treat-this-as-an-adjustment-to-the-existing-positioning-percentage-used-for-the-arm-layer",
+      "title": "Update the HDDHub arm assembly vertical positioning to apply an additional fine-tune offset of -6% on the Y axis relative to the current Version 16 live positioning baseline, without using CSS translateY-percent-of-element-height semantics (i.e., treat this as an adjustment to the existing positioning percentage used for the arm layer).",
+      "reqIds": [
+        "REQ-61"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-hddhub-component-vertical-positioning-to-use-new-absolute-offsets-that-replace-the-version-16-baseline-positions-move-the-disk-platter-layer-disk-png-4-downward-on-the-y-axis-and-move-the-arm-assembly-layer-arm-png-8-downward-on-the-y-axis-these-must-be-absolute-positions-not-relative-adjustments-to-the-current-version-17-18-values-and-no-other-hddhub-layout-sizing-rotation-mapping-hover-click-interaction-or-animation-behavior-may-change",
+      "title": "Update the HDDHub component vertical positioning to use new absolute offsets that replace the Version 16 baseline positions: move the disk platter layer (disk.png) 4% downward on the Y axis and move the arm assembly layer (arm.png) 8% downward on the Y axis. These must be absolute positions (not relative adjustments to the current Version 17/18 values) and no other HDDHub layout, sizing, rotation mapping, hover/click interaction, or animation behavior may change.",
+      "reqIds": [
+        "REQ-62"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-replace-the-existing-small-categorymodal-dialog-content-with-a-large-centered-responsive-glass-morphism-overlay-panel-that-opens-on-category-click-for-all-categories-i-e-fully-replace-the-current-small-modal-behavior",
+      "title": "Replace the existing small CategoryModal dialog content with a large, centered, responsive glass-morphism overlay panel that opens on category click for all categories (i.e., fully replace the current small modal behavior).",
+      "reqIds": [
+        "REQ-63"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-make-the-new-overlay-panel-scrollable-and-visually-spacious-constrain-it-to-fit-within-the-viewport-while-allowing-internal-vertical-scrolling-for-long-content",
+      "title": "Make the new overlay panel scrollable and visually spacious: constrain it to fit within the viewport while allowing internal vertical scrolling for long content.",
+      "reqIds": [
+        "REQ-64"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-overlay-panel-does-not-overlap-the-fixed-top-right-vinylplayer-overlay-or-the-right-column-hddhub-in-a-way-that-blocks-their-visibility-the-overlay-must-size-position-itself-to-avoid-those-areas-responsively",
+      "title": "Ensure the overlay panel does not overlap the fixed top-right VinylPlayer overlay or the right-column HDDHub in a way that blocks their visibility; the overlay must size/position itself to avoid those areas responsively.",
+      "reqIds": [
+        "REQ-65"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-inside-the-overlay-render-a-dynamic-layout-that-includes-a-multiple-photo-placeholders-that-can-handle-arbitrary-aspect-ratios-and-b-custom-text-sections-both-types-of-sections-should-be-composable-in-the-overlay-body-and-support-future-per-category-customization-via-local-placeholder-data",
+      "title": "Inside the overlay, render a dynamic layout that includes (a) multiple photo placeholders that can handle arbitrary aspect ratios and (b) custom text sections; both types of sections should be composable in the overlay body and support future per-category customization via local placeholder data.",
+      "reqIds": [
+        "REQ-66"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-provide-clean-dismissal-behavior-for-the-new-overlay-clicking-outside-the-panel-backdrop-or-using-an-explicit-close-button-must-close-the-overlay-restore-underlying-interactions-and-preserve-smooth-pointer-interactions-and-accessibility-basics",
+      "title": "Provide clean dismissal behavior for the new overlay: clicking outside the panel (backdrop) or using an explicit close button must close the overlay, restore underlying interactions, and preserve smooth pointer interactions and accessibility basics.",
+      "reqIds": [
+        "REQ-67"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-static-asset-url-resolution-so-images-render-correctly-in-all-hosting-environments-including-github-pages-repo-subpaths-by-avoiding-root-absolute-paths-for-bg-png-vinyl-png-bodyhdd-png-disk-png-arm-png-and-audio-mp3-instead-resolve-these-assets-using-the-app-base-path-e-g-vite-base-url-consistently-across-portfolioshell-vinylplayer-and-hddhub",
+      "title": "Fix static asset URL resolution so images render correctly in all hosting environments (including GitHub Pages/repo subpaths) by avoiding root-absolute paths (\"/...\") for bg.png, vinyl.png, bodyhdd.png, disk.png, arm.png, and audio.mp3; instead, resolve these assets using the app base path (e.g., Vite base URL) consistently across PortfolioShell, VinylPlayer, and HDDHub.",
+      "reqIds": [
+        "REQ-70"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-reliable-runtime-fallback-behavior-for-all-critical-images-bg-png-vinyl-png-bodyhdd-png-disk-png-arm-png-if-a-canonical-asset-fails-to-load-automatically-fall-back-to-an-existing-local-placeholder-e-g-assets-under-assets-generated-or-a-minimal-non-transparent-built-in-placeholder-and-ensure-this-fallback-is-applied-in-hddhub-and-portfolioshell-not-just-vinylplayer",
+      "title": "Add reliable runtime fallback behavior for all critical images (bg.png, vinyl.png, bodyhdd.png, disk.png, arm.png): if a canonical asset fails to load, automatically fall back to an existing local placeholder (e.g., assets under /assets/generated/) or a minimal non-transparent built-in placeholder, and ensure this fallback is applied in HDDHub and PortfolioShell (not just VinylPlayer).",
+      "reqIds": [
+        "REQ-71"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -425,20 +641,8 @@
       "status": "pending"
     },
     {
-      "id": "AR-12",
-      "summary": "Add a glowing circular line/track highlight along the corresponding HDD lane during hover/click selection to visually represent the selected orbit/track; keep effects subtle and non-intrusive.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
       "id": "AR-13",
       "summary": "Fix right-side HDD hub rendering to correctly display layered assets (bodyhdd.png base, disk.png spinning above, arm.png on top) using the exact uploaded PNGs for precise sizing/rotation/alignment; keep vinyl.png fixed top-right only and bg.png as full-page background",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-15",
-      "summary": "Adjust HDD hub geometry while keeping the arm on the left: keep lane glow ring tangent/in-contact with the arm tip via dynamic sizing/positioning (optionally vary intensity), and nudge the platter slightly upward within bodyhdd.png for a more realistic HDD layout",
       "reqIds": [],
       "status": "pending"
     },
@@ -451,14 +655,132 @@
       "status": "pending"
     },
     {
-      "id": "AR-17",
-      "summary": "Limit HDD arm rotation range so it does not swing excessively downward (approx. 30° downward limit, estimated relative to platter outline), enforce disk.png platter rendering as true 1:1 square, and correct glow ring geometry so it is mathematically/visually centered on the disk.png center axis and stays aligned/tangent with the arm tip using the exact uploaded HDD images for positioning",
+      "id": "AR-19",
+      "summary": "Reduce HDD arm (arm.png) rendered size by ~40% relative to the current Draft Version 11 size, while keeping it properly positioned within the HDD body throughout lane movement.",
       "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-20",
+      "summary": "Adjust HDD arm rotation pivot/transform-origin to bottom-middle of the arm (slightly below the arm’s visual center) so rotation looks physically correct during lane movements.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-21",
+      "summary": "Increase HDD platter (disk.png) rendered size by ~35% relative to the current Draft Version 11 size, preserving true 1:1 aspect and centered rotation behavior.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-22",
+      "summary": "Remove/disable all glowing lane highlight line/ring effects and any related glow sizing/positioning/tangent logic for now (no glowlines/glowrings rendered during hover/click).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-23",
+      "summary": "Replace the prior ~30° downward-only HDD arm rotation constraint with a bidirectional total swing limit of ~35–42° (up + down within that envelope) and remap all 13 lanes across this new rotation range",
+      "reqIds": [],
+      "status": "in_progress"
+    },
+    {
+      "id": "AR-24",
+      "summary": "Set HDD arm rotation mapping to absolute angles measured from horizontal: category/lane 1 = 45°, category/lane 13 = 35° (linear mapping across 13 lanes, ~10° total downward range); ensure initial/default arm orientation is NOT 90°",
+      "reqIds": [],
+      "status": "in_progress"
+    },
+    {
+      "id": "AR-25",
+      "summary": "Adjust HDDHub platter (disk.png) vertical position: move platter upward by ~+10% on the Y-axis (relative to current positioning) while preserving centered rotation",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-26",
+      "summary": "Slightly reduce the rendered size of the HDDHub arm (arm.png) (smaller than current, not a major resize), keeping it within HDD body bounds across all 13 lanes",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-27",
+      "summary": "Adjust HDDHub arm rotation pivot/transform-origin so the axis point is slightly up from the bottom of the arm (not exactly at the bottom) for more natural rotation",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-28",
+      "summary": "Apply additional fine-tune vertical offsets relative to Version 16 live positions: platter Y offset -3% (relative to the prior +10% offset baseline) and arm Y offset -6% (relative to the prior +10% offset baseline); make no other layout or mapping changes",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-29",
+      "summary": "Update HDDHub vertical offsets as absolute positions (replacing Version 16 baseline): move platter (disk.png) 4% downward on Y-axis and move arm assembly (arm.png) 8% downward on Y-axis",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-30",
+      "summary": "Replace the existing small CategoryModal boxes with a large, centered, responsive, scrollable glass-morphism overlay panel on category click; include dynamic photo placeholders (any aspect ratio) and allow custom text sections anywhere inside; ensure it doesn’t overlap the vinyl overlay or HDD hub and can be dismissed via outside click or close button",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-31",
+      "summary": "Upload/replace placeholder images by adding real asset files (bg.png, vinyl.png, bodyhdd.png, disk.png, arm.png) into the project’s assets folder so the site renders non-transparent visuals",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-32",
+      "summary": "Change/connect site domain to shibhii.caffeine.xyz (custom domain/subdomain configuration request)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-33",
+      "summary": "Add the user-uploaded images to the project file system so the app’s existing static asset URLs resolve to real (non-transparent) images. Specifically, place selected uploaded files into the frontend public root with these exact filenames: /bg.png, /vinyl.png, /bodyhdd.png, /disk.png, /arm.png (as referenced by PortfolioShell, VinylPlayer, and HDDHub).",
+      "reqIds": [
+        "REQ-68"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-34",
+      "summary": "Preserve all additionally uploaded duplicate variants (bg-2.png, vinyl-2.png, bodyhdd-2.png, disk-2.png, arm-2.png) in the project (do not delete), but ensure the live app continues to reference only the canonical filenames /bg.png, /vinyl.png, /bodyhdd.png, /disk.png, /arm.png so asset replacement stays simple.",
+      "reqIds": [
+        "REQ-69"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-37",
+      "summary": "Ensure the project includes visible (non-transparent) default placeholder files for the canonical static asset filenames expected by the app: /bg.png, /vinyl.png, /bodyhdd.png, /disk.png, /arm.png, and /audio.mp3, placed in the frontend public root so the current UI renders even before the user replaces them with real assets.",
+      "reqIds": [
+        "REQ-72"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-38",
+      "summary": "Add the 5 newly uploaded images to the project’s frontend public static assets and set them as the canonical filenames used by the app: place bg-3.png as frontend/public/bg.png, vinyl-3.png as frontend/public/vinyl.png, bodyhdd-3.png as frontend/public/bodyhdd.png, disk-3.png as frontend/public/disk.png, and arm-3.png as frontend/public/arm.png.",
+      "reqIds": [
+        "REQ-73"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-39",
+      "summary": "Preserve the originally uploaded filenames (bg-3.png, vinyl-3.png, bodyhdd-3.png, disk-3.png, arm-3.png) in the repository in addition to the canonical copies, so the original uploads remain available for reference.",
+      "reqIds": [
+        "REQ-74"
+      ],
       "status": "pending"
     }
   ],
   "gameProjectType": "none",
-  "projectName": "Dark minimal split-screen portfolio with rotating vinyl, looping audio, and centered glass-morphism category modals (GitHub Pages)",
+  "projectName": "shibhi.studio",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

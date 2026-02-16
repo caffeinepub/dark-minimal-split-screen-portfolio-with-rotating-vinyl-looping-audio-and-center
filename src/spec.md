@@ -1,11 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Refine the HDDHub visualization so the arm rotation is constrained, the platter renders as a true square with correct centered spin, and the glow ring is centered/tangent to the arm tip across lane transitions.
+**Goal:** Replace placeholder/static visuals with the newly uploaded canonical public assets for the background and HDD/vinyl layers.
 
 **Planned changes:**
-- Constrain the HDD arm’s maximum downward rotation to ~30° and remap the 13 lanes to fit within the reduced rotation range while keeping hover-to-move and click-to-open-modal behavior unchanged.
-- Render `disk.png` with a strict 1:1 aspect ratio at all sizes and ensure its spin animation rotates about the image’s visual center, with correct layering between `bodyhdd.png` and `arm.png`.
-- Rework glow ring positioning so it is centered on the `disk.png` center axis and stays continuously tangent/in contact with the arm tip during hover motion and lane transitions, using the uploaded HDD assets as alignment reference.
+- Copy bg-3.png to frontend/public/bg.png, vinyl-3.png to frontend/public/vinyl.png, bodyhdd-3.png to frontend/public/bodyhdd.png, disk-3.png to frontend/public/disk.png, and arm-3.png to frontend/public/arm.png.
+- Preserve the original uploaded files (bg-3.png, vinyl-3.png, bodyhdd-3.png, disk-3.png, arm-3.png) in the repository in a non-conflicting public-accessible location for reference.
+- Keep the app referencing only the canonical filenames via the existing base-path-safe asset resolver and fallback chain (no new root-absolute paths).
 
-**User-visible outcome:** The HDD arm no longer swings excessively downward, all 13 lanes still hover/select distinctly, the platter looks perfectly circular (not stretched) and spins smoothly around its center, and the glow ring stays centered on the platter and consistently touches the arm tip throughout movement.
+**User-visible outcome:** On fresh load, the app renders the real uploaded background, vinyl, and HDD hub imagery using the canonical asset filenames (bg.png, vinyl.png, bodyhdd.png, disk.png, arm.png).

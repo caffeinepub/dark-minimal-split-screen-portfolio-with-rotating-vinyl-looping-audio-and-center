@@ -2,7 +2,7 @@ import { useState } from 'react';
 import PortfolioShell from './components/PortfolioShell';
 import VinylPlayer from './components/VinylPlayer';
 import HDDHub from './components/HDDHub';
-import CategoryModal from './components/CategoryModal';
+import CategoryOverlay from './components/CategoryOverlay';
 import { categories, type Category } from './data/categories';
 
 export default function App() {
@@ -63,13 +63,11 @@ export default function App() {
         </div>
       </div>
 
-      {/* Category Modal */}
-      <CategoryModal
+      {/* Category Overlay */}
+      <CategoryOverlay
         category={selectedCategory}
         open={!!selectedCategory}
-        onOpenChange={(open) => {
-          if (!open) setSelectedCategory(null);
-        }}
+        onClose={() => setSelectedCategory(null)}
       />
     </PortfolioShell>
   );

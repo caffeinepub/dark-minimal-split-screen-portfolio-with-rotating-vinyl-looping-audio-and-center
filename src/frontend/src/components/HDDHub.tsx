@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { categories } from '../data/categories';
+import { hddBodyFallbacks, hddDiskFallbacks, hddArmFallbacks } from '../lib/assetFallbacks';
 
 interface HDDHubProps {
   hoveredCategoryId: string | null;
@@ -7,6 +8,11 @@ interface HDDHubProps {
 }
 
 export default function HDDHub({ hoveredCategoryId, selectedCategoryId }: HDDHubProps) {
+  // Fallback state for each image layer
+  const [bodyFallbackIndex, setBodyFallbackIndex] = useState(0);
+  const [diskFallbackIndex, setDiskFallbackIndex] = useState(0);
+  const [armFallbackIndex, setArmFallbackIndex] = useState(0);
+
   // Determine active category (hover takes precedence over selected)
   const activeCategoryId = hoveredCategoryId || selectedCategoryId;
 
@@ -22,116 +28,98 @@ export default function HDDHub({ hoveredCategoryId, selectedCategoryId }: HDDHub
   // Calculate active lane index
   const activeLaneIndex = activeCategoryId ? categoryToLaneIndex.get(activeCategoryId) ?? null : null;
 
-  // Calculate arm rotation based on lane - constrained to 0° to 30° range
-  // Distribute all 13 lanes evenly across this reduced range
-  const armRotation = activeLaneIndex !== null ? 0 + (activeLaneIndex * 30) / 12 : 0;
+  // Absolute rotation configuration: 45° (lane 1) → 35° (lane 13)
+  const ANGLE_LANE_1 = 45; // Lane index 0 (1st category)
+  const ANGLE_LANE_13 = 35; // Lane index 12 (13th category)
+  const DEFAULT_ANGLE = ANGLE_LANE_1; // Rest position when nothing is hovered/selected
+
+  // Calculate arm rotation based on lane - absolute linear mapping
+  const armRotation = useMemo(() => {
+    if (activeLaneIndex === null) return DEFAULT_ANGLE;
+    
+    const rotation = ANGLE_LANE_1 + (activeLaneIndex * (ANGLE_LANE_13 - ANGLE_LANE_1)) / 12;
+    return Math.max(ANGLE_LANE_13, Math.min(ANGLE_LANE_1, rotation));
+  }, [activeLaneIndex]);
 
   // Disk spin intensity based on hover/selection
   const diskSpinning = !!activeCategoryId;
 
-  // Geometry constants:
-  // - Platter is centered at 50% left, 30% top (moved up 20% from center)
-  // - Arm pivot is at left 15%, top 70% (50% arm top + 20% arm height)
-  const PLATTER_CENTER_LEFT_PERCENT = 50;
-  const PLATTER_CENTER_TOP_PERCENT = 30;
-  const ARM_PIVOT_LEFT_PERCENT = 15;
-  const ARM_PIVOT_TOP_PERCENT = 70;
-  const ARM_LENGTH_PERCENT = 40;
+  // Fallback handlers
+  const handleBodyError = () => {
+    if (bodyFallbackIndex < hddBodyFallbacks.length - 1) {
+      setBodyFallbackIndex(prev => prev + 1);
+    }
+  };
 
-  // Calculate glow ring geometry: center on platter, radius to arm tip
-  const glowRingGeometry = useMemo(() => {
-    if (activeLaneIndex === null) return null;
-    
-    const angleRad = (armRotation * Math.PI) / 180;
-    
-    // Arm tip position in container coordinates
-    const armTipX = ARM_PIVOT_LEFT_PERCENT + ARM_LENGTH_PERCENT * Math.cos(angleRad);
-    const armTipY = ARM_PIVOT_TOP_PERCENT - ARM_LENGTH_PERCENT * Math.sin(angleRad);
-    
-    // Calculate distance from platter center to arm tip
-    const dx = armTipX - PLATTER_CENTER_LEFT_PERCENT;
-    const dy = armTipY - PLATTER_CENTER_TOP_PERCENT;
-    const radiusPercent = Math.sqrt(dx * dx + dy * dy);
-    
-    // Clamp radius to stay within platter bounds (max ~35% of container = half of 70% platter)
-    const clampedRadiusPercent = Math.min(radiusPercent, 35);
-    
-    return {
-      centerX: PLATTER_CENTER_LEFT_PERCENT,
-      centerY: PLATTER_CENTER_TOP_PERCENT,
-      radius: clampedRadiusPercent,
-    };
-  }, [activeLaneIndex, armRotation]);
+  const handleDiskError = () => {
+    if (diskFallbackIndex < hddDiskFallbacks.length - 1) {
+      setDiskFallbackIndex(prev => prev + 1);
+    }
+  };
+
+  const handleArmError = () => {
+    if (armFallbackIndex < hddArmFallbacks.length - 1) {
+      setArmFallbackIndex(prev => prev + 1);
+    }
+  };
 
   return (
     <div className="relative flex h-full w-full items-center justify-center">
-      {/* HDD Hub Container */}
-      <div className="relative aspect-square w-full max-w-[500px]">
-        {/* Base Layer - HDD Body (stationary) */}
+      {/* HDD Hub Container - 3:4 aspect ratio for body */}
+      <div className="relative w-full max-w-[500px]" style={{ aspectRatio: '3 / 4' }}>
+        {/* Base Layer - HDD Body (stationary) - 3:4 aspect ratio */}
         <img
-          src="/bodyhdd.png"
+          src={hddBodyFallbacks[bodyFallbackIndex]}
           alt="Hard disk body"
           className="absolute inset-0 h-full w-full object-contain"
           style={{ imageRendering: 'crisp-edges' }}
+          onError={handleBodyError}
         />
 
-        {/* Middle Layer - Disk Platter (spinning) - square 1:1 aspect ratio, centered on itself */}
+        {/* Middle Layer - Disk Platter (spinning) - strict 1:1 aspect ratio, 4% down from top, 35% larger */}
         <div 
           className="absolute"
           style={{
-            left: '15%',
-            top: '-5%',
-            width: '70%',
-            height: '70%',
+            left: '2.75%',
+            top: '4%',
+            width: '94.5%',
+            aspectRatio: '1 / 1',
           }}
         >
           <div
-            className={`relative aspect-square w-full transition-transform duration-700 ${
+            className={`relative h-full w-full transition-transform duration-700 ${
               diskSpinning ? 'animate-disk-spin' : ''
             }`}
             style={{ transformOrigin: 'center center' }}
           >
             <img
-              src="/disk.png"
+              src={hddDiskFallbacks[diskFallbackIndex]}
               alt="Hard disk platter"
               className="h-full w-full object-contain"
               style={{ imageRendering: 'crisp-edges' }}
+              onError={handleDiskError}
             />
           </div>
         </div>
 
-        {/* Lane Glow Effect - centered on platter, tangent to arm tip */}
-        {glowRingGeometry && (
-          <div
-            className="pointer-events-none absolute transition-all duration-500 ease-out"
-            style={{
-              width: `${glowRingGeometry.radius * 2}%`,
-              height: `${glowRingGeometry.radius * 2}%`,
-              left: `${glowRingGeometry.centerX - glowRingGeometry.radius}%`,
-              top: `${glowRingGeometry.centerY - glowRingGeometry.radius}%`,
-            }}
-          >
-            <div
-              className="h-full w-full rounded-full border-2 border-white/40 shadow-[0_0_20px_rgba(255,255,255,0.3)]"
-              style={{
-                boxShadow: '0 0 20px rgba(255, 255, 255, 0.3), inset 0 0 20px rgba(255, 255, 255, 0.1)',
-              }}
-            />
-          </div>
-        )}
-
-        {/* Top Layer - Read/Write Arm - rotation constrained to 0°-30° */}
+        {/* Top Layer - Read/Write Arm - 1.6:4 aspect ratio, slightly smaller, absolute rotation 45°→35°, pivot slightly above bottom */}
         <div
-          className="absolute left-[15%] top-[50%] h-[20%] w-[40%] origin-bottom-left transition-transform duration-500 ease-out"
+          className="absolute transition-transform duration-500 ease-out"
           style={{
+            left: '15%',
+            top: '38%',
+            width: '24%',
+            aspectRatio: '1.6 / 4',
             transform: `rotate(${armRotation}deg)`,
+            transformOrigin: 'center 90%',
           }}
         >
           <img
-            src="/arm.png"
+            src={hddArmFallbacks[armFallbackIndex]}
             alt="Hard disk arm"
             className="h-full w-full object-contain object-bottom"
             style={{ imageRendering: 'crisp-edges' }}
+            onError={handleArmError}
           />
         </div>
       </div>

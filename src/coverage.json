@@ -1,56 +1,47 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-16T08:50:24.388Z",
+  "generatedAt": "2026-02-16T12:57:36.257Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 3,
+    "total": 2,
+    "implemented": 0,
     "items": [
       {
-        "id": "REQ-40",
-        "summary": "Limit the HDDHub arm rotation range so the arm cannot swing excessively downward; cap the maximum downward rotation to approximately a ~30° downward limit (slightly horizontal), with lane mapping adjusted so all 13 lanes fit within this constrained range while preserving the existing interaction model (hover moves arm; click selects lane and opens modal).",
-        "status": "implemented",
+        "id": "REQ-73",
+        "summary": "Add the 5 newly uploaded images to the project’s frontend public static assets and set them as the canonical filenames used by the app: place bg-3.png as frontend/public/bg.png, vinyl-3.png as frontend/public/vinyl.png, bodyhdd-3.png as frontend/public/bodyhdd.png, disk-3.png as frontend/public/disk.png, and arm-3.png as frontend/public/arm.png.",
+        "status": "missing",
         "plannedFiles": [
-          "frontend/src/components/HDDHub.tsx"
+          "frontend/public/bg.png",
+          "frontend/public/vinyl.png",
+          "frontend/public/bodyhdd.png",
+          "frontend/public/disk.png",
+          "frontend/public/arm.png"
         ],
-        "matchedFiles": [
-          "frontend/src/components/HDDHub.tsx"
-        ]
+        "matchedFiles": []
       },
       {
-        "id": "REQ-41",
-        "summary": "Render the HDD platter image (disk.png) as a true 1:1 square in the HDDHub visualization, based on the disk.png’s square shape, ensuring the platter is not stretched and maintains correct centered rotation about its own visual center.",
-        "status": "implemented",
+        "id": "REQ-74",
+        "summary": "Preserve the originally uploaded filenames (bg-3.png, vinyl-3.png, bodyhdd-3.png, disk-3.png, arm-3.png) in the repository in addition to the canonical copies, so the original uploads remain available for reference.",
+        "status": "missing",
         "plannedFiles": [
-          "frontend/src/components/HDDHub.tsx"
+          "frontend/public/assets/uploads/bg-3.png",
+          "frontend/public/assets/uploads/vinyl-3.png",
+          "frontend/public/assets/uploads/bodyhdd-3.png",
+          "frontend/public/assets/uploads/disk-3.png",
+          "frontend/public/assets/uploads/arm-3.png"
         ],
-        "matchedFiles": [
-          "frontend/src/components/HDDHub.tsx"
-        ]
-      },
-      {
-        "id": "REQ-42",
-        "summary": "Correct HDDHub glow ring geometry so the glow ring is (1) mathematically and visually centered on the disk.png center axis and (2) remains tangent/in contact with the arm tip throughout the full arm movement range and during lane transitions, using the actual uploaded HDD assets (bodyhdd.png/disk.png/arm.png) as the reference for positioning and alignment.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/HDDHub.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/HDDHub.tsx"
-        ]
+        "matchedFiles": []
       }
     ]
   },
   "changedFiles": [
     "build-request.json",
     "feature_evidence.json",
-    "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/HDDHub.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",
