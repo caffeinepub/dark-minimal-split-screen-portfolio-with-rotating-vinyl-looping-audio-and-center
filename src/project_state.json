@@ -1,0 +1,464 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 23,
+  "summary": "Dark, minimal, experimental portfolio website built with React + TypeScript for deployment on GitHub Pages, featuring split layout over a dimmed full-screen background image, left-side interactive categories that open glass-morphism modals, a small fixed top-right vinyl play/pause controller for looping audio, and a full-height right-side interactive HDD hub (body/platter/arm) that reacts to category hover/click with lane-based arm movement and glow effects.",
+  "architectural_notes": [
+    "Use React + TypeScript (minimal additional framework usage) and ensure build/deploy is compatible with GitHub Pages.",
+    "Category content structure: modal header title + short paragraph placeholder; modal is centered (not slide-in) with glass-morphism blur/transparency.",
+    "Audio playback must loop while playing and be controlled by the same play/pause UI that controls vinyl rotation.",
+    "Left column category list updated to: Photography, Design, Electronics., Blender & Animations, Designs, VideoEdits, PhotoEdits, YouTube, Instagram, Lab, GitHub, About Me, Connect; keep punctuation exactly as specified (Electronics. includes period; Lab has no period).",
+    "Vinyl control becomes a small fixed top-right overlay (z-index above right-side visuals), and must remain visible without blocking other interactions.",
+    "Add HDD hub on the right side using layered static assets: bodyhdd.png (base), disk.png (spinning platter), arm.png (top), with interactions driven by left-side category hover/click.",
+    "Category interactions: hover triggers HDD arm movement + disk animation + lane glow; click opens the existing centered glass-morphism modal (modal not opened on hover).",
+    "Use the exact uploaded asset files for bodyhdd.png, disk.png, arm.png to determine sizing/alignment/rotation precisely (do not rely on placeholders or assumed dimensions), especially for the slim arm.png to avoid distortion.",
+    "Use the exact uploaded bg.png as the full split-screen background image; use the exact uploaded vinyl.png only for the fixed top-right MP3 controller overlay.",
+    "HDDHub geometry refinements: limit arm rotation so max downward angle is ~30° (relative to platter outline), render disk.png with true 1:1 square aspect (using exact uploaded disk.png sizing/placement), and compute glow ring center from the mathematical/visual center of disk.png so the ring axis aligns with platter center and stays tangent/in-contact with the arm tip; validate using the exact uploaded HDD images."
+  ],
+  "known_issues": [
+    "Live showcase currently shows a small vinyl at the bottom instead of the intended right-side HDD hub (bodyhdd/disk/arm layering), indicating HDD hub rendering/mapping is incorrect.",
+    "HDD platter rotation axis/transform-origin is incorrect, causing disk.png to spin around the wrong point.",
+    "HDD arm (arm.png) is rendered too large relative to the platter; needs scaling down.",
+    "Glowing orbit/lane highlight rings are too large; need resizing to match platter proportions.",
+    "Lane glow rings are not correctly aligned to the arm tip during movement; they change independently instead of staying tangent/in contact with the arm head.",
+    "Platter positioning within the vertically rectangular HDD body is off; disk should sit slightly higher within bodyhdd.png.",
+    "Glow ring size scaling is inverted (currently grows when arm moves down and shrinks when arm moves up); must be reversed while staying in contact with arm tip.",
+    "Arm needs repositioning lower and slightly inward to the right; current placement is too high/too far out.",
+    "HDD arm rotation range is too large (swings too far downward); must be capped to roughly a ~30° downward limit relative to the platter outline.",
+    "Platter (disk.png) is not being rendered with a true 1:1 square aspect; needs square sizing/placement based on the uploaded disk.png."
+  ],
+  "isFixRequest": true,
+  "existing_features": [
+    {
+      "id": "feature-create-a-responsive-horizontally-split-flexbox-portfolio-layout-over-a-full-screen-background-image-with-reduced-brightness-and-white-typography-left-column-must-include-the-site-title-shibhi-studio-an-italic-cursive-tagline-not-just-for-a-television-teleport-to-where-it-s-written-and-a-vertical-list-of-interactive-categories-photography-blender-animations-design-electronics",
+      "title": "Create a responsive, horizontally split (Flexbox) portfolio layout over a full-screen background image with reduced brightness and white typography; left column must include the site title “shibhi.studio”, an italic cursive tagline “Not just for a television, Teleport to where it’s written.”, and a vertical list of interactive categories: Photography, Blender & Animations, Design, Electronics.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-large-vinyl-record-image-in-the-right-column-that-rotates-smoothly-while-audio-is-playing-place-a-play-pause-toggle-button-centered-on-the-vinyl-that-starts-pauses-mp3-playback-and-synchronizes-the-vinyl-rotation-state-with-the-audio-state",
+      "title": "Add a large vinyl record image in the right column that rotates smoothly while audio is playing; place a play/pause toggle button centered on the vinyl that starts/pauses MP3 playback and synchronizes the vinyl rotation state with the audio state.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-configure-audio-playback-to-loop-automatically-while-playing-and-ensure-playback-stops-pauses-only-when-the-play-pause-toggle-is-pressed-again-i-e-the-track-does-not-end-and-stop-due-to-reaching-the-end",
+      "title": "Configure audio playback to loop automatically while playing, and ensure playback stops/pauses only when the play/pause toggle is pressed again (i.e., the track does not end and stop due to reaching the end).",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-category-click-behavior-to-open-centered-modal-overlay-panels-not-side-drawers-with-a-transparent-blurred-glass-morphism-effect-each-modal-should-show-a-simple-content-structure-category-title-at-the-top-and-a-short-descriptive-paragraph-beneath-it-placeholders-allowed",
+      "title": "Implement category click behavior to open centered modal overlay panels (not side drawers) with a transparent, blurred glass-morphism effect; each modal should show a simple content structure: category title at the top and a short descriptive paragraph beneath it (placeholders allowed).",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-simple-dynamic-content-loading-mechanism-for-category-modals-using-local-placeholder-data-e-g-a-typed-in-app-data-map-or-local-json-so-each-category-can-display-different-title-paragraph-content-without-hardcoding-modal-markup-per-category",
+      "title": "Add a simple dynamic content loading mechanism for category modals using local placeholder data (e.g., a typed in-app data map or local JSON) so each category can display different title/paragraph content without hardcoding modal markup per category.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-overall-interaction-and-motion-feels-smooth-subtle-and-intentional-not-flashy-use-restrained-transitions-for-hover-focus-states-modal-open-close-and-vinyl-rotation-start-stop-while-maintaining-clear-pointer-interactions-and-accessibility-basics",
+      "title": "Ensure overall interaction and motion feels smooth, subtle, and intentional (not flashy): use restrained transitions for hover/focus states, modal open/close, and vinyl rotation start/stop, while maintaining clear pointer interactions and accessibility basics.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-make-the-app-fully-compatible-with-github-pages-hosting-ensure-client-side-routing-if-any-works-on-github-pages-e-g-hash-based-routing-and-all-static-asset-paths-resolve-correctly-when-served-from-a-repository-subpath",
+      "title": "Make the app fully compatible with GitHub Pages hosting: ensure client-side routing (if any) works on GitHub Pages (e.g., hash-based routing) and all static asset paths resolve correctly when served from a repository subpath.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-use-user-provided-assets-with-easy-replacement-reference-bg-png-and-vinyl-png-as-the-primary-background-and-vinyl-images-and-reference-an-mp3-file-for-playback-include-development-placeholders-that-can-be-replaced-by-dropping-in-files-with-the-same-names",
+      "title": "Use user-provided assets with easy replacement: reference bg.png and vinyl.png as the primary background and vinyl images and reference an MP3 file for playback; include development placeholders that can be replaced by dropping in files with the same names.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-apply-a-coherent-dark-minimal-experimental-visual-theme-colors-typography-spacing-and-component-styling-consistent-across-the-split-layout-vinyl-controls-and-glass-modals-avoid-flashy-gradients-and-keep-the-aesthetic-modern-and-restrained",
+      "title": "Apply a coherent dark, minimal, experimental visual theme (colors, typography, spacing, and component styling) consistent across the split layout, vinyl controls, and glass modals; avoid flashy gradients and keep the aesthetic modern and restrained.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-new-tagline-text-line-experimental-directly-under-the-shibhi-studio-title-in-the-left-column-styled-as-slim-lightweight-and-slightly-grey-it-must-not-use-italic-cursive-styling",
+      "title": "Add a new tagline text line \"Experimental.\" directly under the \"shibhi.studio\" title in the left column, styled as slim/lightweight and slightly grey; it must not use italic/cursive styling.",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-category-data-source-so-the-left-side-category-list-renders-in-this-exact-order-the-following-category-names-photography-design-electronics-blender-animations-designs-videoedits-photoedits-youtube-instagram-lab-github-about-me-connect",
+      "title": "Update the category data source so the left-side category list renders (in this exact order) the following category names: Photography, Design, Electronics, Blender & Animations, Designs, VideoEdits, PhotoEdits, YouTube, Instagram, Lab, GitHub, About Me, Connect.",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-for-every-newly-added-category-designs-videoedits-photoedits-youtube-instagram-lab-github-about-me-connect-add-placeholder-descriptions-in-the-same-local-category-data-structure-used-by-the-modal-so-that-clicking-each-category-opens-the-modal-with-the-correct-title-and-a-non-empty-descriptive-paragraph",
+      "title": "For every newly added category (Designs, VideoEdits, PhotoEdits, YouTube, Instagram, Lab, GitHub, About Me, Connect), add placeholder descriptions in the same local category data structure used by the modal so that clicking each category opens the modal with the correct title and a non-empty descriptive paragraph.",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-all-categories-have-stable-unique-ids-suitable-for-use-as-react-keys-and-for-modal-selection-do-not-reuse-a-single-id-for-multiple-categories",
+      "title": "Ensure all categories have stable, unique IDs suitable for use as React keys and for modal selection; do not reuse a single ID for multiple categories.",
+      "reqIds": [
+        "REQ-13"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-replace-the-current-right-column-only-vinyl-layout-with-a-full-height-hdd-hub-that-occupies-the-entire-right-column-while-moving-the-existing-vinylplayer-into-a-small-fixed-position-overlay-in-the-top-right-corner-of-the-viewport-that-stays-visible-at-all-times",
+      "title": "Replace the current right-column-only vinyl layout with a full-height HDD hub that occupies the entire right column, while moving the existing VinylPlayer into a small fixed-position overlay in the top-right corner of the viewport that stays visible at all times.",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-an-hdd-hub-component-using-the-provided-static-assets-layered-like-a-real-hard-drive-bodyhdd-png-as-the-base-disk-png-as-the-platter-layer-and-arm-png-on-top-ensure-the-platter-can-spin-and-the-arm-can-move-to-a-selected-lane",
+      "title": "Implement an HDD hub component using the provided static assets layered like a real hard drive: bodyhdd.png as the base, disk.png as the platter layer, and arm.png on top; ensure the platter can spin and the arm can move to a selected lane.",
+      "reqIds": [
+        "REQ-15"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-map-all-13-existing-categories-from-the-existing-categories-data-source-to-exactly-13-hdd-lanes-tracks-and-implement-left-side-category-hover-behavior-so-hovering-a-category-moves-the-hdd-arm-to-the-corresponding-lane-and-triggers-subtle-disk-spin-and-selection-visual-effects-without-opening-the-category-modal",
+      "title": "Map all 13 existing categories (from the existing categories data source) to exactly 13 HDD lanes/tracks, and implement left-side category hover behavior so hovering a category moves the HDD arm to the corresponding lane and triggers subtle disk spin and selection visual effects without opening the category modal.",
+      "reqIds": [
+        "REQ-16"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-glowing-circular-lane-highlight-effect-when-a-category-is-hovered-or-clicked-selected-render-a-glowing-circular-line-aligned-with-that-category-s-corresponding-hdd-lane-to-visually-represent-the-selected-orbit-track-the-glow-should-be-subtle-and-should-transition-smoothly-when-changing-lanes",
+      "title": "Add a glowing circular lane highlight effect: when a category is hovered or clicked (selected), render a glowing circular line aligned with that category’s corresponding HDD lane to visually represent the selected orbit/track; the glow should be subtle and should transition smoothly when changing lanes.",
+      "reqIds": [
+        "REQ-17"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-click-behavior-so-clicking-a-category-opens-the-existing-centered-glass-morphism-modal-as-is-while-also-updating-the-hdd-hub-to-reflect-the-clicked-category-as-the-current-selected-lane-arm-position-and-lane-glow-hover-behavior-must-remain-hover-only-no-modal",
+      "title": "Update click behavior so clicking a category opens the existing centered glass-morphism modal as-is, while also updating the HDD hub to reflect the clicked category as the current selected lane (arm position and lane glow). Hover behavior must remain hover-only (no modal).",
+      "reqIds": [
+        "REQ-18"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-fixed-top-right-vinyl-player-remains-independent-from-hdd-hub-interactions-the-vinyl-spins-only-when-its-own-play-pause-button-is-clicked-and-audio-is-playing-and-hdd-hover-click-interactions-must-not-start-stop-audio-or-cause-vinyl-spin-changes",
+      "title": "Ensure the fixed top-right vinyl player remains independent from HDD hub interactions: the vinyl spins only when its own play/pause button is clicked (and audio is playing), and HDD hover/click interactions must not start/stop audio or cause vinyl spin changes.",
+      "reqIds": [
+        "REQ-19"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-replace-the-current-right-column-content-currently-rendering-the-large-vinylplayer-with-a-full-height-right-side-hdd-hub-that-renders-the-uploaded-static-assets-layered-like-a-real-hard-drive-bodyhdd-png-as-the-stationary-base-layer-disk-png-above-it-as-the-spinning-platter-layer-and-arm-png-above-the-disk-as-the-top-layer",
+      "title": "Replace the current right-column content (currently rendering the large VinylPlayer) with a full-height, right-side HDD hub that renders the uploaded static assets layered like a real hard drive: bodyhdd.png as the stationary base layer, disk.png above it as the spinning platter layer, and arm.png above the disk as the top layer.",
+      "reqIds": [
+        "REQ-20"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-13-lane-mapping-between-the-existing-13-categories-from-frontend-src-data-categories-ts-and-13-hdd-tracks-lanes-in-the-hdd-hub-hovering-a-category-moves-the-hdd-arm-to-the-corresponding-lane-and-triggers-subtle-disk-spin-selection-effects-without-opening-the-modal",
+      "title": "Implement a 13-lane mapping between the existing 13 categories (from frontend/src/data/categories.ts) and 13 HDD tracks/lanes in the HDD hub; hovering a category moves the HDD arm to the corresponding lane and triggers subtle disk spin/selection effects without opening the modal.",
+      "reqIds": [
+        "REQ-21"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-category-click-behavior-so-clicking-a-category-both-a-opens-the-existing-centered-glass-morphism-categorymodal-and-b-sets-the-hdd-hub-s-selected-lane-state-so-the-arm-and-lane-highlight-reflect-the-clicked-category-after-hover-ends",
+      "title": "Update category click behavior so clicking a category both (a) opens the existing centered glass-morphism CategoryModal and (b) sets the HDD hub’s selected lane state so the arm and lane highlight reflect the clicked category after hover ends.",
+      "reqIds": [
+        "REQ-22"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-subtle-glowing-circular-lane-track-highlight-effect-aligned-to-the-currently-hovered-lane-and-or-selected-lane-and-animate-its-transitions-smoothly-when-changing-lanes",
+      "title": "Add a subtle glowing circular lane/track highlight effect aligned to the currently hovered lane and/or selected lane, and animate its transitions smoothly when changing lanes.",
+      "reqIds": [
+        "REQ-23"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-move-the-vinylplayer-into-a-small-space-efficient-fixed-position-overlay-at-the-top-right-of-the-viewport-above-the-hdd-hub-using-z-index-and-ensure-it-remains-visible-at-all-times-without-interfering-with-hdd-hub-interactions",
+      "title": "Move the VinylPlayer into a small, space-efficient, fixed-position overlay at the top-right of the viewport (above the HDD hub using z-index) and ensure it remains visible at all times without interfering with HDD hub interactions.",
+      "reqIds": [
+        "REQ-24"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-vinyl-s-rotation-state-is-controlled-only-by-its-own-play-pause-button-and-synchronized-with-looping-audio-playback-hdd-hover-click-interactions-must-not-start-stop-audio-or-change-vinyl-rotation-state",
+      "title": "Ensure the vinyl’s rotation state is controlled only by its own play/pause button and synchronized with looping audio playback; HDD hover/click interactions must not start/stop audio or change vinyl rotation state.",
+      "reqIds": [
+        "REQ-25"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-use-the-exact-uploaded-bg-png-as-the-full-screen-split-layout-background-image-and-the-exact-uploaded-vinyl-png-as-the-vinyl-image-for-the-fixed-top-right-audio-controller-vinyl-png-must-not-be-used-inside-the-hdd-hub",
+      "title": "Use the exact uploaded bg.png as the full-screen split-layout background image and the exact uploaded vinyl.png as the vinyl image for the fixed top-right audio controller (vinyl.png must not be used inside the HDD hub).",
+      "reqIds": [
+        "REQ-26"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-hdd-platter-disk-png-spinning-so-its-axis-of-rotation-is-visually-centered-in-the-middle-of-the-platter-image-during-the-animate-disk-spin-animation",
+      "title": "Fix the HDD platter (disk.png) spinning so its axis of rotation is visually centered in the middle of the platter image during the animate-disk-spin animation.",
+      "reqIds": [
+        "REQ-27"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-reduce-the-rendered-size-of-the-hdd-arm-arm-png-so-it-appears-proportionally-smaller-relative-to-the-platter-and-hdd-body",
+      "title": "Reduce the rendered size of the HDD arm (arm.png) so it appears proportionally smaller relative to the platter and HDD body.",
+      "reqIds": [
+        "REQ-28"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-reduce-the-size-of-the-glowing-circular-lane-orbit-highlight-rings-so-they-match-the-platter-image-size-and-do-not-extend-too-far-beyond-the-disk-area",
+      "title": "Reduce the size of the glowing circular lane/orbit highlight rings so they match the platter image size and do not extend too far beyond the disk area.",
+      "reqIds": [
+        "REQ-29"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-hddhub-arm-arm-png-so-the-arm-assembly-is-positioned-on-the-right-side-of-the-platter-and-visually-points-works-toward-the-left-mirror-the-current-left-side-behavior-rather-than-introducing-a-new-interaction-model",
+      "title": "Update the HDDHub arm (arm.png) so the arm assembly is positioned on the right side of the platter and visually points/works toward the left (mirror the current left-side behavior rather than introducing a new interaction model).",
+      "reqIds": [
+        "REQ-30"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-modify-the-hddhub-lane-glow-ring-behavior-so-the-glow-ring-is-always-tangent-to-in-contact-with-the-arm-s-head-tip-position-control-the-glow-ring-s-size-and-optionally-intensity-dependently-based-on-the-arm-s-current-lane-position-so-the-ring-does-not-appear-to-change-independently-of-the-arm",
+      "title": "Modify the HDDHub lane glow ring behavior so the glow ring is always tangent to / in contact with the arm’s head tip position; control the glow ring’s size (and optionally intensity) dependently based on the arm’s current lane/position so the ring does not appear to change independently of the arm.",
+      "reqIds": [
+        "REQ-31"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-adjust-the-hddhub-platter-disk-png-positioning-so-the-platter-sits-slightly-higher-within-the-vertically-rectangular-hdd-body-bodyhdd-png-resembling-a-real-hdd-where-the-platter-is-not-perfectly-centered-within-the-body-image",
+      "title": "Adjust the HDDHub platter (disk.png) positioning so the platter sits slightly higher within the vertically-rectangular HDD body (bodyhdd.png), resembling a real HDD where the platter is not perfectly centered within the body image.",
+      "reqIds": [
+        "REQ-32"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-hddhub-lane-glow-ring-sizing-so-it-shrinks-when-the-arm-pointer-moves-downward-across-lanes-and-grows-when-the-arm-pointer-moves-upward-across-lanes-i-e-reverse-the-current-opposite-behavior",
+      "title": "Fix the HDDHub lane glow ring sizing so it shrinks when the arm pointer moves downward across lanes and grows when the arm pointer moves upward across lanes (i.e., reverse the current opposite behavior).",
+      "reqIds": [
+        "REQ-34"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-hddhub-glow-ring-positioning-geometry-so-the-glow-ring-stays-in-contact-with-tangent-to-the-arm-pointer-tip-throughout-the-full-arm-movement-range-including-while-transitioning-between-lanes",
+      "title": "Update HDDHub glow ring positioning/geometry so the glow ring stays in contact with (tangent to) the arm pointer tip throughout the full arm movement range, including while transitioning between lanes.",
+      "reqIds": [
+        "REQ-35"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-adjust-the-hddhub-arm-arm-png-layout-so-the-arm-sits-lower-more-toward-the-bottom-of-the-hdd-area-slightly-more-inward-toward-the-right-and-is-scaled-down-even-smaller-than-the-current-size-while-preserving-the-existing-interaction-model",
+      "title": "Adjust the HDDHub arm (arm.png) layout so the arm sits lower (more toward the bottom of the HDD area), slightly more inward toward the right, and is scaled down even smaller than the current size while preserving the existing interaction model.",
+      "reqIds": [
+        "REQ-36"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-the-hddhub-visualization-move-the-disk-platter-disk-png-layer-upward-by-approximately-20-relative-to-its-current-vertical-position-within-the-bodyhdd-png-container-while-preserving-the-platter-s-centered-rotation-behavior-i-e-it-must-still-spin-around-its-own-visual-center",
+      "title": "In the HDDHub visualization, move the disk platter (disk.png layer) upward by approximately 20% relative to its current vertical position within the bodyhdd.png container, while preserving the platter’s centered rotation behavior (i.e., it must still spin around its own visual center).",
+      "reqIds": [
+        "REQ-37"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-the-hddhub-visualization-move-the-entire-arm-assembly-arm-png-container-downward-on-the-y-axis-by-approximately-25-relative-to-its-current-position-without-changing-the-existing-interaction-model-arm-still-rotates-targets-lanes-the-same-way",
+      "title": "In the HDDHub visualization, move the entire arm assembly (arm.png container) downward on the Y-axis by approximately 25% relative to its current position, without changing the existing interaction model (arm still rotates/targets lanes the same way).",
+      "reqIds": [
+        "REQ-38"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-after-applying-the-platter-20-up-and-arm-25-down-shifts-update-the-glow-ring-lane-highlight-geometry-positioning-so-the-glow-rings-are-aligned-to-the-correct-axis-stay-within-the-hdd-image-area-not-oversized-out-of-bounds-and-remain-tangent-in-contact-with-the-arm-tip-throughout-the-full-lane-range-and-during-transitions",
+      "title": "After applying the platter (+20% up) and arm (+25% down) shifts, update the glow ring (lane highlight) geometry/positioning so the glow rings are aligned to the correct axis, stay within the HDD image area (not oversized/out-of-bounds), and remain tangent/in contact with the arm tip throughout the full lane range and during transitions.",
+      "reqIds": [
+        "REQ-39"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-limit-the-hddhub-arm-rotation-range-so-the-arm-cannot-swing-excessively-downward-cap-the-maximum-downward-rotation-to-approximately-a-30-downward-limit-slightly-horizontal-with-lane-mapping-adjusted-so-all-13-lanes-fit-within-this-constrained-range-while-preserving-the-existing-interaction-model-hover-moves-arm-click-selects-lane-and-opens-modal",
+      "title": "Limit the HDDHub arm rotation range so the arm cannot swing excessively downward; cap the maximum downward rotation to approximately a ~30° downward limit (slightly horizontal), with lane mapping adjusted so all 13 lanes fit within this constrained range while preserving the existing interaction model (hover moves arm; click selects lane and opens modal).",
+      "reqIds": [
+        "REQ-40"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-render-the-hdd-platter-image-disk-png-as-a-true-1-1-square-in-the-hddhub-visualization-based-on-the-disk-png-s-square-shape-ensuring-the-platter-is-not-stretched-and-maintains-correct-centered-rotation-about-its-own-visual-center",
+      "title": "Render the HDD platter image (disk.png) as a true 1:1 square in the HDDHub visualization, based on the disk.png’s square shape, ensuring the platter is not stretched and maintains correct centered rotation about its own visual center.",
+      "reqIds": [
+        "REQ-41"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-correct-hddhub-glow-ring-geometry-so-the-glow-ring-is-1-mathematically-and-visually-centered-on-the-disk-png-center-axis-and-2-remains-tangent-in-contact-with-the-arm-tip-throughout-the-full-arm-movement-range-and-during-lane-transitions-using-the-actual-uploaded-hdd-assets-bodyhdd-png-disk-png-arm-png-as-the-reference-for-positioning-and-alignment",
+      "title": "Correct HDDHub glow ring geometry so the glow ring is (1) mathematically and visually centered on the disk.png center axis and (2) remains tangent/in contact with the arm tip throughout the full arm movement range and during lane transitions, using the actual uploaded HDD assets (bodyhdd.png/disk.png/arm.png) as the reference for positioning and alignment.",
+      "reqIds": [
+        "REQ-42"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Create split-screen portfolio layout with dimmed full-screen background image, white typography, left column title/tagline, and interactive category list",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Add rotating vinyl image on right column with centered play/pause control that starts/pauses MP3 playback and synchronizes rotation",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Implement centered glass-morphism modal overlays for categories with title + short descriptive paragraph placeholders and dynamic content loading hook",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Ensure smooth, subtle interactions, responsive non-overlapping alignment, clear pointer affordances, and full GitHub Pages compatibility (React + TS)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Use user-provided assets (bg.png, vinyl.png, MP3) with development placeholders and easy replacement path",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Configure audio to loop automatically while playing; stop only via play/pause toggle",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Add an additional tagline text “Experimental.” directly under “shibhi.studio”, styled slim and slightly grey (not italic cursive)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Replace the left-side category list with: Photography, Design, Electronics., Blender & Animations, Designs, VideoEdits, PhotoEdits, YouTube, Instagram, Lab, GitHub, About Me, Connect (keep both Design and Designs; keep 'Electronics.' with period; use 'Lab' without period)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-9",
+      "summary": "Move the existing vinyl into a small, fixed top-right overlay that stays visible and space-efficient; it spins only when the centered play/pause is clicked (same control for MP3) and remains static when paused; must not interfere with other page elements/interactions (use z-index/positioning).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-10",
+      "summary": "Add a visually distinct, fully interactive hard-disk-drive hub occupying the entire right side as the main interaction area, layered like a real HDD: bodyhdd.png at base, disk.png platter above (spins), and arm.png on top.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-11",
+      "summary": "Map all 13 left-side categories to 13 HDD lanes/tracks; on category hover, animate HDD (arm moves to that lane and disk animates) without opening the modal; on category click, open the existing centered glass-morphism modal while also reflecting the lane selection.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-12",
+      "summary": "Add a glowing circular line/track highlight along the corresponding HDD lane during hover/click selection to visually represent the selected orbit/track; keep effects subtle and non-intrusive.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-13",
+      "summary": "Fix right-side HDD hub rendering to correctly display layered assets (bodyhdd.png base, disk.png spinning above, arm.png on top) using the exact uploaded PNGs for precise sizing/rotation/alignment; keep vinyl.png fixed top-right only and bg.png as full-page background",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-15",
+      "summary": "Adjust HDD hub geometry while keeping the arm on the left: keep lane glow ring tangent/in-contact with the arm tip via dynamic sizing/positioning (optionally vary intensity), and nudge the platter slightly upward within bodyhdd.png for a more realistic HDD layout",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-16",
+      "summary": "Keep the HDDHub read/write arm (arm.png) positioned on the left side of the platter and preserve the existing left-side interaction model; remove/avoid any change that mirrors or relocates the arm assembly to the right side.",
+      "reqIds": [
+        "REQ-33"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-17",
+      "summary": "Limit HDD arm rotation range so it does not swing excessively downward (approx. 30° downward limit, estimated relative to platter outline), enforce disk.png platter rendering as true 1:1 square, and correct glow ring geometry so it is mathematically/visually centered on the disk.png center axis and stays aligned/tangent with the arm tip using the exact uploaded HDD images for positioning",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Dark minimal split-screen portfolio with rotating vinyl, looping audio, and centered glass-morphism category modals (GitHub Pages)",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

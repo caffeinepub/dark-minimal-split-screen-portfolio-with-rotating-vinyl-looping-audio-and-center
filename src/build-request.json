@@ -1,0 +1,77 @@
+{
+  "kind": "build_request",
+  "title": "Constrain HDD arm rotation, enforce square platter, and correct glow ring centering/tangency",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-40",
+      "text": "Limit the HDDHub arm rotation range so the arm cannot swing excessively downward; cap the maximum downward rotation to approximately a ~30° downward limit (slightly horizontal), with lane mapping adjusted so all 13 lanes fit within this constrained range while preserving the existing interaction model (hover moves arm; click selects lane and opens modal).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "recent-messages"
+        ],
+        "quotes": [
+          "30 degree is slightly horizontal limit and also u estimate as per the end outline of the platter limit"
+        ]
+      },
+      "acceptanceCriteria": [
+        "When hovering across all 13 categories, the arm rotates smoothly but never exceeds the specified downward limit (~30° downward from the intended neutral/horizontal reference in the current visualization).",
+        "All 13 categories still map to distinct, visually separated lanes/arm positions within the reduced rotation range.",
+        "No other interactions change: hover still does not open the modal; click still opens the modal and sets selected lane state."
+      ]
+    },
+    {
+      "id": "REQ-41",
+      "text": "Render the HDD platter image (disk.png) as a true 1:1 square in the HDDHub visualization, based on the disk.png’s square shape, ensuring the platter is not stretched and maintains correct centered rotation about its own visual center.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "recent-messages"
+        ],
+        "quotes": [
+          "yes as per disk.png square shape u also try use the given image placing there"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The rendered platter region for disk.png maintains a 1:1 aspect ratio at all responsive sizes (no oval/distortion).",
+        "The platter spin animation rotates around the visual center of disk.png (no wobble or off-axis rotation).",
+        "The platter remains correctly layered above bodyhdd.png and below arm.png."
+      ]
+    },
+    {
+      "id": "REQ-42",
+      "text": "Correct HDDHub glow ring geometry so the glow ring is (1) mathematically and visually centered on the disk.png center axis and (2) remains tangent/in contact with the arm tip throughout the full arm movement range and during lane transitions, using the actual uploaded HDD assets (bodyhdd.png/disk.png/arm.png) as the reference for positioning and alignment.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "recent-messages"
+        ],
+        "quotes": [
+          "growlines are still not aligned on the axis of the platter's centre axis and arm's movement correct it, and try to preview by using the uploaded hdd images for clear idea",
+          "absolutely yes ad per visual centre also mathematically centre."
+        ]
+      },
+      "acceptanceCriteria": [
+        "With any hovered/selected category, the glow ring’s center aligns to the disk.png visual center (coaxial with the platter), not drifting relative to the platter as lanes change.",
+        "As the arm moves between lanes, the glow ring stays tangent/in contact with the arm head tip continuously (including mid-transition), without appearing to move independently of the arm tip.",
+        "The glow ring remains within the visible HDD/platter area and does not appear oversized or out-of-bounds relative to disk.png."
+      ]
+    }
+  ],
+  "constraints": [
+    "Frontend changes must not modify any files under frontend/src/components/ui or other immutable paths listed in SYSTEM_CONTEXT.",
+    "Maintain the existing category hover/click behavior contract (hover-only motion; click opens existing centered modal and sets selection).",
+    "Do not introduce new backend logic; backend/main.mo should remain unchanged unless strictly required (not expected for these visual/interaction fixes)."
+  ],
+  "nonGoals": [
+    "Adding new categories or changing category ordering/content.",
+    "Changing VinylPlayer audio behavior, playback, or overlay positioning.",
+    "Replacing the HDD assets (bodyhdd.png, disk.png, arm.png) or introducing new image files.",
+    "Implementing real-time features or any backend persistence for HDD state."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "frontend/src/App.tsx": "Main application component managing split-screen portfolio layout with category selection, hover state tracking, rendering left column (title, tagline, categories), right column (HDD hub), fixed top-right vinyl overlay, and category modal.",
+  "frontend/src/components/PortfolioShell.tsx": "Layout wrapper component applying full-viewport dimmed background image layer using bg.png with fallback support and positioning content above it.",
+  "frontend/src/components/VinylPlayer.tsx": "Vinyl player component with compact mode support, rotating vinyl image, centered play/pause button, and looping audio playback synchronized with rotation animation state, independent of HDD interactions.",
+  "frontend/src/components/CategoryModal.tsx": "Glass-morphism modal dialog component displaying category title and description with centered overlay positioning and accessible dismissal controls.",
+  "frontend/src/components/ui/dialog.tsx": "Shadcn/ui Dialog component providing accessible modal primitives with overlay, content, header, and close functionality using Radix UI.",
+  "frontend/src/components/ui/button.tsx": "Shadcn/ui Button component with variant and size options using class-variance-authority for consistent styling across the application.",
+  "frontend/src/lib/utils.ts": "Utility module exporting cn function for merging Tailwind CSS classes using clsx and tailwind-merge.",
+  "frontend/src/data/categories.ts": "Category data source defining thirteen portfolio categories (Photography, Design, Electronics, Blender & Animations, Designs, VideoEdits, PhotoEdits, YouTube, Instagram, Lab, GitHub, About Me, Connect) with unique IDs, names, and descriptions for modal content display.",
+  "frontend/src/index.css": "Global styles with dark theme OKLCH color tokens, glass-morphism modal utilities, smooth vinyl rotation keyframes, HDD disk spin animation, and typography defaults.",
+  "frontend/tailwind.config.js": "Tailwind configuration extending theme with serif font family for italic tagline and maintaining existing color system and animation utilities.",
+  "frontend/vite.config.ts": "Vite build configuration with base path set to './' for GitHub Pages compatibility and path alias resolution for '@' imports.",
+  "frontend/src/components/HDDHub.tsx": "HDD hub component rendering layered hard disk visualization with arm rotation constrained to 0°-30° across all 13 lanes, square 1:1 aspect-ratio platter spinning around its visual center, and glow ring centered on the platter axis with radius dynamically calculated to remain tangent to the rotating arm tip."
+}

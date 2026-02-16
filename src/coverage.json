@@ -1,0 +1,59 @@
+{
+  "kind": "coverage_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-16T08:50:24.388Z",
+  "sources": {
+    "buildRequest": true,
+    "implementationPlan": true
+  },
+  "requirements": {
+    "total": 3,
+    "implemented": 3,
+    "items": [
+      {
+        "id": "REQ-40",
+        "summary": "Limit the HDDHub arm rotation range so the arm cannot swing excessively downward; cap the maximum downward rotation to approximately a ~30° downward limit (slightly horizontal), with lane mapping adjusted so all 13 lanes fit within this constrained range while preserving the existing interaction model (hover moves arm; click selects lane and opens modal).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/HDDHub.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/HDDHub.tsx"
+        ]
+      },
+      {
+        "id": "REQ-41",
+        "summary": "Render the HDD platter image (disk.png) as a true 1:1 square in the HDDHub visualization, based on the disk.png’s square shape, ensuring the platter is not stretched and maintains correct centered rotation about its own visual center.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/HDDHub.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/HDDHub.tsx"
+        ]
+      },
+      {
+        "id": "REQ-42",
+        "summary": "Correct HDDHub glow ring geometry so the glow ring is (1) mathematically and visually centered on the disk.png center axis and (2) remains tangent/in contact with the arm tip throughout the full arm movement range and during lane transitions, using the actual uploaded HDD assets (bodyhdd.png/disk.png/arm.png) as the reference for positioning and alignment.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/HDDHub.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/HDDHub.tsx"
+        ]
+      }
+    ]
+  },
+  "changedFiles": [
+    "build-request.json",
+    "feature_evidence.json",
+    "frontend-file-summaries.txt",
+    "frontend-implementation-plan.json",
+    "frontend/src/components/HDDHub.tsx",
+    "project_state.json",
+    "scratch/component-selection.json",
+    "spec.md",
+    "spec_vs_diff_report.json"
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "HDDHub arm rotation constraints, square platter rendering, and centered tangent glow ring",
+  "requirements": [
+    {
+      "id": "REQ-40",
+      "summary": "Constrain HDDHub arm downward rotation to ~30° max while remapping all 13 lanes into the reduced range without changing hover/click behavior.",
+      "acceptanceCriteria": [
+        "When hovering across all 13 categories, the arm rotates smoothly but never exceeds the specified downward limit (~30° downward from the intended neutral/horizontal reference in the current visualization).",
+        "All 13 categories still map to distinct, visually separated lanes/arm positions within the reduced rotation range.",
+        "No other interactions change: hover still does not open the modal; click still opens the modal and sets selected lane state."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/HDDHub.tsx",
+          "operation": "modify",
+          "description": "Replace the current 20°–70° lane-to-rotation mapping with a clamped/normalized mapping that caps maximum downward rotation at ~30° (relative to the component’s visual neutral) and distributes all 13 lane angles evenly within the new [min,max] rotation range; keep activeCategoryId precedence (hover over selected) and do not alter any click/hover contract."
+        }
+      ]
+    },
+    {
+      "id": "REQ-41",
+      "summary": "Ensure disk.png renders as a true square platter at all sizes and spins around its visual center without distortion or wobble.",
+      "acceptanceCriteria": [
+        "The rendered platter region for disk.png maintains a 1:1 aspect ratio at all responsive sizes (no oval/distortion).",
+        "The platter spin animation rotates around the visual center of disk.png (no wobble or off-axis rotation).",
+        "The platter remains correctly layered above bodyhdd.png and below arm.png."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/HDDHub.tsx",
+          "operation": "modify",
+          "description": "Refactor the platter layer so its layout box remains 1:1 (use an aspect-square wrapper with a single controlling dimension rather than height/width percentages tied to a non-square parent caused by top offsets), and keep transformOrigin centered on the square wrapper to prevent wobble; preserve existing z-order so disk.png stays above bodyhdd.png and below arm.png."
+        }
+      ]
+    },
+    {
+      "id": "REQ-42",
+      "summary": "Center the HDDHub glow ring on the disk.png center axis and keep it continuously tangent to the arm tip during lane transitions.",
+      "acceptanceCriteria": [
+        "With any hovered/selected category, the glow ring’s center aligns to the disk.png visual center (coaxial with the platter), not drifting relative to the platter as lanes change.",
+        "As the arm moves between lanes, the glow ring stays tangent/in contact with the arm head tip continuously (including mid-transition), without appearing to move independently of the arm tip.",
+        "The glow ring remains within the visible HDD/platter area and does not appear oversized or out-of-bounds relative to disk.png."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/HDDHub.tsx",
+          "operation": "modify",
+          "description": "Rework glow ring geometry so its center is anchored to the computed disk.png center (in the hub container coordinate space) and its radius is derived from the arm-tip-to-disk-center distance (with a small calibrated tip offset if needed to match the actual arm.png head), ensuring tangency across continuous transitions; clamp ring radius to remain within the visible platter area of disk.png and remove any lane-based ring positioning that causes the ring center to drift between lanes."
+        }
+      ]
+    }
+  ]
+}
