@@ -1,27 +1,45 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { PortfolioShell, VinylPlayer, HDDHub, CategoryOverlay } from './components/StudioComponents';
+import { ElectronHoverLink } from './components/ElectronHoverLink';
 import { categories, type Category } from './data/categories';
 
 export default function App() {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [hoveredCategoryId, setHoveredCategoryId] = useState<string | null>(null);
+  const [hoveredElement, setHoveredElement] = useState<HTMLElement | null>(null);
+  const hddAnchorRef = useRef<HTMLDivElement>(null);
+  const categoryRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+
+  // Update hovered element when hoveredCategoryId changes
+  useEffect(() => {
+    if (hoveredCategoryId) {
+      const element = categoryRefs.current.get(hoveredCategoryId);
+      setHoveredElement(element || null);
+    } else {
+      setHoveredElement(null);
+    }
+  }, [hoveredCategoryId]);
 
   return (
     <PortfolioShell>
-      <div className="fixed right-4 top-4 z-50 lg:right-8 lg:top-8">
-        <VinylPlayer compact />
-      </div>
-
       <div className="flex min-h-screen w-full flex-col lg:flex-row">
         <div className="flex flex-1 flex-col justify-center px-8 py-16 lg:px-16 lg:py-24">
           <div className="max-w-xl space-y-12">
-            <div className="space-y-2">
-              <h1 className="text-5xl font-light tracking-tight text-white lg:text-6xl">
-                shibhi.studio
-              </h1>
-              <p className="text-base font-light text-white/40 lg:text-lg">
-                Experimental.
-              </p>
+            {/* Header row with title and vinyl player */}
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between lg:gap-8">
+              <div className="space-y-2">
+                <h1 className="text-5xl font-light tracking-tight text-white lg:text-6xl">
+                  shibhi.studio
+                </h1>
+                <p className="text-base font-light text-white/40 lg:text-lg">
+                  Experimental.
+                </p>
+              </div>
+
+              {/* VinylPlayer at right end on desktop */}
+              <div className="flex justify-start lg:justify-end lg:flex-shrink-0">
+                <VinylPlayer />
+              </div>
             </div>
 
             <p className="font-serif text-xl italic text-white/90 lg:text-2xl">
@@ -32,6 +50,13 @@ export default function App() {
               {categories.map((category) => (
                 <button
                   key={category.id}
+                  ref={(el) => {
+                    if (el) {
+                      categoryRefs.current.set(category.id, el);
+                    } else {
+                      categoryRefs.current.delete(category.id);
+                    }
+                  }}
                   onClick={() => setSelectedCategory(category)}
                   onMouseEnter={() => setHoveredCategoryId(category.id)}
                   onMouseLeave={() => setHoveredCategoryId(null)}
@@ -50,15 +75,23 @@ export default function App() {
           <HDDHub
             hoveredCategoryId={hoveredCategoryId}
             selectedCategoryId={selectedCategory?.id || null}
+            anchorRef={hddAnchorRef}
           />
         </div>
       </div>
 
-      <CategoryOverlay
-        category={selectedCategory}
-        open={!!selectedCategory}
-        onClose={() => setSelectedCategory(null)}
+      {/* Electron hover effect */}
+      <ElectronHoverLink
+        originElement={hddAnchorRef.current}
+        targetElement={hoveredElement}
       />
+
+      {selectedCategory && (
+        <CategoryOverlay
+          category={selectedCategory}
+          onClose={() => setSelectedCategory(null)}
+        />
+      )}
     </PortfolioShell>
   );
 }

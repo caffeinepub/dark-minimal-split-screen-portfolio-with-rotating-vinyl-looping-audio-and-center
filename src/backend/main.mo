@@ -71,11 +71,17 @@ actor {
     imageId;
   };
 
-  public query func getImage(id : Nat) : async ?ImageMetadata {
+  public query ({ caller }) func getImage(id : Nat) : async ?ImageMetadata {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only authenticated users can view images");
+    };
     images.get(id);
   };
 
-  public query func listImages() : async [(Nat, ImageMetadata)] {
+  public query ({ caller }) func listImages() : async [(Nat, ImageMetadata)] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only authenticated users can list images");
+    };
     images.toArray();
   };
 

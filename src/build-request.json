@@ -1,137 +1,53 @@
 {
   "kind": "build_request",
-  "title": "HDDHub visual tuning (opacity, shadows, brightness, scale, arm angles)",
-  "projectName": "shibhi.studio",
+  "title": "Move Vinyl to Header Right and Constrain HDD Arm to 20°–42° Across 13 Categories",
+  "projectName": "Shibhi Studio",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-89",
-      "text": "Update the HDDHub arm rotation mapping so lane/category 1 (index 0 in frontend/src/data/categories.ts) renders at an absolute 42° rotation from horizontal and lane/category 13 (last index) renders at an absolute 20° rotation from horizontal, with linear interpolation across all lanes; keep the default/rest arm angle at the lane 1 angle when there is no hoveredCategoryId and no selectedCategoryId.",
+      "id": "REQ-1",
+      "text": "Reposition the VinylPlayer so it appears at the right end of the “shibhi.studio” header area (aligned to the right of the title section), rather than appearing lower in the left column.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-2",
-          "msg-3"
+          "msg-4"
         ],
         "quotes": [
-          "then arm limit change 20degree-13th category to 42degree-1st category.",
-          "3-yes"
+          "right now the vinyl is down bring it to right end of the shibhi.studio"
         ]
       },
       "acceptanceCriteria": [
-        "With no hovered or selected category, the HDD arm renders at 42° (lane 1).",
-        "Hovering/selecting the last category maps the arm to 20°.",
-        "All intermediate lanes map linearly between 42° and 20° with no discontinuities.",
-        "No other hover/click behaviors change (hover moves arm and spins platter; click still opens the overlay and sets selected lane)."
+        "On desktop (lg+), the vinyl appears visually at the right side of the header/title area for “shibhi.studio”.",
+        "On smaller screens, the layout remains responsive (no overlap/cutoff); the vinyl may stack under/near the header but should not appear far down the page compared to the header area."
       ]
     },
     {
-      "id": "REQ-90",
-      "text": "Apply an overall opacity of 75% to the entire HDDHub visual (body + platter + arm together), without affecting the left-side menu or the fixed VinylPlayer overlay.",
+      "id": "REQ-2",
+      "text": "Update the HDD arm rotation so it strictly operates only within 20° to 42° (measured from horizontal 0°) and evenly maps exactly 13 categories such that category 1 corresponds to 42° and category 13 corresponds to 20° (with linear interpolation for categories 2–12). Ensure the UI uses exactly these 13 categories for the mapping.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-2",
-          "msg-3"
+          "msg-4"
         ],
         "quotes": [
-          "reduce some brightness of platter, and then whole hard disk opacity to 75 percent. then arm limit change...",
-          "2yes"
+          "the arm strictly should operate in the range of 20degree to  42degree( from hrizontal 0degree) in that all the 13 catergories are to be splitted ;ike 42-1st category, 20degree-13th category."
         ]
       },
       "acceptanceCriteria": [
-        "The HDDHub composite (body, disk, arm) renders at ~0.75 opacity as a whole.",
-        "The left-side text/menu and the top-right VinylPlayer retain their current opacity/appearance.",
-        "Hover/click interactions remain fully functional (opacity change must not disable pointer interactions)."
-      ]
-    },
-    {
-      "id": "REQ-91",
-      "text": "Reduce the HDD platter (disk layer) brightness to improve contrast while preserving the existing disk spin animation behavior and centered rotation.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-2"
-        ],
-        "quotes": [
-          "reduce some brightness of platter"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The disk/platter appears visibly dimmer than before (subtle darkening).",
-        "The disk still spins around its visual center with the existing animation timing/behavior.",
-        "Only the platter brightness changes; no unintended changes to the body or arm brightness."
-      ]
-    },
-    {
-      "id": "REQ-92",
-      "text": "Add a subtle shadow cast by the HDD arm onto the platter (shadow should visually sit between the arm and the disk layers) to better differentiate the arm from the platter.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-2",
-          "msg-3"
-        ],
-        "quotes": [
-          "then give sime shadows under arm to differentiate between them",
-          "1 the slight shadow of arm on platter"
-        ]
-      },
-      "acceptanceCriteria": [
-        "A subtle, realistic-looking shadow appears under the arm, visibly separating it from the platter.",
-        "The shadow does not create harsh edges or overpower the HDD visuals (keeps the existing restrained aesthetic).",
-        "The shadow follows the arm position/rotation (i.e., remains consistent as the arm moves between lanes)."
-      ]
-    },
-    {
-      "id": "REQ-93",
-      "text": "Reduce the rendered size of the platter image layer by approximately 2% (relative to the current platter render size), without changing its aspect ratio (must stay 1:1) or its centered rotation behavior.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-2"
-        ],
-        "quotes": [
-          "by 2% reduce the platter image"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The platter render size is ~2% smaller than the current live version.",
-        "The platter remains perfectly square (1:1) and still spins around its own visual center.",
-        "No changes to lane mapping logic or hover/click behavior are introduced by this size adjustment."
-      ]
-    },
-    {
-      "id": "REQ-94",
-      "text": "Reduce the entire HDDHub rendered size by approximately 25% (scale down the full HDD visualization including body, platter, and arm), while keeping it centered in the right column and preserving all layering, offsets, and interaction hit areas.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-2"
-        ],
-        "quotes": [
-          "and then reduce whole image by 25%,"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The full HDDHub visualization appears ~25% smaller than before while remaining centered in the right column.",
-        "All three layers (body/platter/arm) remain correctly aligned after scaling.",
-        "Hover and click interactions still work exactly as before (no broken hover zones or misalignment-related interaction bugs)."
+        "When hovering/selecting the first category in the 13-category set, the arm rotation is exactly 42°.",
+        "When hovering/selecting the 13th category in the 13-category set, the arm rotation is exactly 20°.",
+        "For categories 2–12, the arm rotation is linearly spaced between 42° and 20° (inclusive) and is clamped so it never goes below 20° or above 42°.",
+        "The category list used for this arm mapping contains exactly 13 categories (no more, no less), and the mapping is based on the visible/active category ordering."
       ]
     }
   ],
   "constraints": [
-    "Frontend must not modify files under frontend/src/components/ui (read-only).",
-    "Do not change VinylPlayer behavior or audio playback behavior.",
-    "Do not change category list ordering, IDs, or overlay behaviors; only apply the requested HDDHub visual and mapping adjustments.",
-    "Do not introduce new glow ring/highlight visuals (they were previously removed/disabled).",
-    "No backend changes are required for these visual/layout/mapping updates."
+    "Do not modify files under frontend/src/components/ui or other paths listed as immutable in SYSTEM_CONTEXT.",
+    "Keep HDDHub and VinylPlayer behavior changes within existing React components (no new backend services)."
   ],
   "nonGoals": [
-    "Adding new categories or changing existing category overlay content.",
-    "Changing HDDHub asset filenames or asset URL resolution/fallback behavior.",
-    "Implementing new animations beyond the requested subtle arm shadow and brightness/opacity/scale adjustments.",
-    "Any changes to the Photo Gallery backend/API or upload behavior."
+    "No changes to backend Motoko canister logic.",
+    "No new category content, overlays, or new animation features beyond the specified vinyl placement and arm-angle mapping."
   ],
   "imageRequirements": {
     "required": [],
@@ -140,9 +56,7 @@
   "userProfileUpdate": {
     "goalsToAdd": [],
     "goalsToRemove": [],
-    "preferencesToAdd": [
-      "Prefer subtle, realistic HDD visuals: arm shadowing, dimmer platter, and reduced overall HDD opacity."
-    ],
+    "preferencesToAdd": [],
     "preferencesToRemove": [],
     "miscToAdd": [],
     "miscToRemove": [],

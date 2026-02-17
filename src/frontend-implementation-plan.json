@@ -1,107 +1,47 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "HDDHub visual tuning (opacity, shadows, brightness, scale, arm angles)",
+  "title": "Shibhi Studio: Header-right Vinyl + 13-category HDD arm angle mapping (20°–42°)",
   "requirements": [
     {
-      "id": "REQ-89",
-      "summary": "Adjust HDDHub arm rotation mapping to 42° (lane 1/index 0) through 20° (lane 13/last) with linear interpolation and default/rest at 42° when no hover/selection.",
+      "id": "REQ-1",
+      "summary": "Move VinylPlayer into the header/title row and align it to the right on desktop while keeping responsive stacking on smaller screens.",
       "acceptanceCriteria": [
-        "With no hovered or selected category, the HDD arm renders at 42° (lane 1).",
-        "Hovering/selecting the last category maps the arm to 20°.",
-        "All intermediate lanes map linearly between 42° and 20° with no discontinuities.",
-        "No other hover/click behaviors change (hover moves arm and spins platter; click still opens the overlay and sets selected lane)."
+        "On desktop (lg+), the vinyl appears visually at the right side of the header/title area for “shibhi.studio”.",
+        "On smaller screens, the layout remains responsive (no overlap/cutoff); the vinyl may stack under/near the header but should not appear far down the page compared to the header area."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/StudioComponents.tsx",
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Update HDDHub arm angle constants and interpolation logic so categories[0] maps to 42°, categories[last] maps to 20°, and the default/rest arm angle uses the lane 1 angle when there is no hoveredCategoryId and no selectedCategoryId; preserve existing hover-driven arm movement and platter spin behavior."
+          "description": "Refactor the title area into a responsive header row that places the VinylPlayer at the right end on lg+ (and stacks near the header on smaller screens). Use the existing VinylPlayer component (optionally its compact mode) and remove the current lower-left placement so it no longer appears far down the left column."
         }
       ]
     },
     {
-      "id": "REQ-90",
-      "summary": "Apply 75% opacity to the full HDDHub visualization only (body + platter + arm), without affecting the left menu or the fixed VinylPlayer overlay, and without breaking interactions.",
+      "id": "REQ-2",
+      "summary": "Clamp HDD arm rotation to 20°–42° and linearly map exactly 13 visible categories (1→42°, 13→20°).",
       "acceptanceCriteria": [
-        "The HDDHub composite (body, disk, arm) renders at ~0.75 opacity as a whole.",
-        "The left-side text/menu and the top-right VinylPlayer retain their current opacity/appearance.",
-        "Hover/click interactions remain fully functional (opacity change must not disable pointer interactions)."
+        "When hovering/selecting the first category in the 13-category set, the arm rotation is exactly 42°.",
+        "When hovering/selecting the 13th category in the 13-category set, the arm rotation is exactly 20°.",
+        "For categories 2–12, the arm rotation is linearly spaced between 42° and 20° (inclusive) and is clamped so it never goes below 20° or above 42°.",
+        "The category list used for this arm mapping contains exactly 13 categories (no more, no less), and the mapping is based on the visible/active category ordering."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/StudioComponents.tsx",
+          "path": "frontend/src/data/categories.ts",
           "operation": "modify",
-          "description": "Wrap the HDDHub rendered layers (body, platter, arm) in a dedicated container that applies overall opacity ~0.75 to the composite only (not the rest of the layout), ensuring pointer interactions remain enabled and unchanged."
-        }
-      ]
-    },
-    {
-      "id": "REQ-91",
-      "summary": "Reduce HDD platter brightness to improve contrast while keeping the existing centered spin animation unchanged.",
-      "acceptanceCriteria": [
-        "The disk/platter appears visibly dimmer than before (subtle darkening).",
-        "The disk still spins around its visual center with the existing animation timing/behavior.",
-        "Only the platter brightness changes; no unintended changes to the body or arm brightness."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/StudioComponents.tsx",
-          "operation": "modify",
-          "description": "Adjust only the platter image layer styling to appear subtly dimmer (e.g., via a brightness filter applied to the platter image element/wrapper), keeping the current animate-disk-spin behavior and center transformOrigin intact."
-        }
-      ]
-    },
-    {
-      "id": "REQ-92",
-      "summary": "Add a subtle, realistic arm shadow between the arm and platter layers that follows the arm rotation.",
-      "acceptanceCriteria": [
-        "A subtle, realistic-looking shadow appears under the arm, visibly separating it from the platter.",
-        "The shadow does not create harsh edges or overpower the HDD visuals (keeps the existing restrained aesthetic).",
-        "The shadow follows the arm position/rotation (i.e., remains consistent as the arm moves between lanes)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/index.css",
-          "operation": "modify",
-          "description": "Add a small CSS utility/class for the HDDHub arm shadow styling (soft blur, low opacity) intended to sit between platter and arm layers, without introducing new glow/highlight effects."
+          "description": "Update the exported categories list so it contains exactly 13 categories in the same visible order used by the UI, ensuring the HDD arm mapping is based on this exact 13-item list."
         },
         {
           "path": "frontend/src/components/StudioComponents.tsx",
           "operation": "modify",
-          "description": "Insert an arm-shadow layer element in HDDHub between the platter and arm DOM layers, positioned/rotated with the same transform + transformOrigin as the arm so the shadow tracks arm movement; ensure it is subtle and does not intercept pointer events."
-        }
-      ]
-    },
-    {
-      "id": "REQ-93",
-      "summary": "Reduce platter render size by ~2% while preserving 1:1 aspect ratio and centered rotation/spin behavior.",
-      "acceptanceCriteria": [
-        "The platter render size is ~2% smaller than the current live version.",
-        "The platter remains perfectly square (1:1) and still spins around its own visual center.",
-        "No changes to lane mapping logic or hover/click behavior are introduced by this size adjustment."
-      ],
-      "file_operations": [
+          "description": "Adjust HDDHub arm rotation logic to compute a linear mapping from lane index (0..12) to degrees (42..20), clamp to [20, 42], and ensure the default/rest angle also stays within the 20°–42° range when no category is active."
+        },
         {
-          "path": "frontend/src/components/StudioComponents.tsx",
+          "path": "frontend/src/data/categoryOverlayContent.ts",
           "operation": "modify",
-          "description": "Adjust the platter layer rendering so the visible platter image is ~2% smaller (e.g., via an inner scale wrapper) while keeping the outer spinning wrapper’s centered rotation behavior and 1:1 aspect ratio unchanged."
-        }
-      ]
-    },
-    {
-      "id": "REQ-94",
-      "summary": "Scale down the entire HDDHub visualization by ~25% while keeping it centered and preserving layer alignment and interaction alignment.",
-      "acceptanceCriteria": [
-        "The full HDDHub visualization appears ~25% smaller than before while remaining centered in the right column.",
-        "All three layers (body/platter/arm) remain correctly aligned after scaling.",
-        "Hover and click interactions still work exactly as before (no broken hover zones or misalignment-related interaction bugs)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/StudioComponents.tsx",
-          "operation": "modify",
-          "description": "Scale the full HDDHub composite (body/platter/arm together) down by ~25% while keeping it centered within its existing right-column container, ensuring all absolute-positioned layers remain aligned and interaction alignment remains consistent with visuals."
+          "description": "Keep overlay content consistent with the updated 13-category list (remove or reconcile any overlay entries for categories that are no longer present) to avoid mismatches and ensure the visible/active category ordering is the source of truth."
         }
       ]
     }

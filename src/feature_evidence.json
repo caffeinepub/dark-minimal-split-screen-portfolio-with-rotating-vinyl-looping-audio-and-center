@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-hddhub-arm-rotation-mapping-so-lane-category-1-index-0-in-frontend-src-data-categories-ts-renders-at-an-absolute-42-rotation-from-horizontal-and-lane-category-13-last-index-renders-at-an-absolute-20-rotation-from-horizontal-with-linear-interpolation-across-all-lanes-keep-the-default-rest-arm-angle-at-the-lane-1-angle-when-there-is-no-hoveredcategoryid-and-no-selectedcategoryid",
-      "featureTitle": "Update the HDDHub arm rotation mapping so lane/category 1 (index 0 in frontend/src/data/categories.ts) renders at an absolute 42° rotation from horizontal and lane/category 13 (last index) renders at an absolute 20° rotation from horizontal, with linear interpolation across all lanes; keep the default/rest arm angle at the lane 1 angle when there is no hoveredCategoryId and no selectedCategoryId.",
+      "featureId": "feature-reposition-the-vinylplayer-so-it-appears-at-the-right-end-of-the-shibhi-studio-header-area-aligned-to-the-right-of-the-title-section-rather-than-appearing-lower-in-the-left-column",
+      "featureTitle": "Reposition the VinylPlayer so it appears at the right end of the “shibhi.studio” header area (aligned to the right of the title section), rather than appearing lower in the left column.",
       "files": [
-        "frontend/src/components/StudioComponents.tsx"
+        "frontend/src/App.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -17,56 +17,16 @@
         "blob-storage@4.0.0"
       ],
       "testIds": [
-        "REQ-89"
+        "REQ-1"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-apply-an-overall-opacity-of-75-to-the-entire-hddhub-visual-body-platter-arm-together-without-affecting-the-left-side-menu-or-the-fixed-vinylplayer-overlay",
-      "featureTitle": "Apply an overall opacity of 75% to the entire HDDHub visual (body + platter + arm together), without affecting the left-side menu or the fixed VinylPlayer overlay.",
-      "files": [
-        "frontend/src/components/StudioComponents.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0",
-        "blob-storage@4.0.0"
-      ],
-      "testIds": [
-        "REQ-90"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-reduce-the-hdd-platter-disk-layer-brightness-to-improve-contrast-while-preserving-the-existing-disk-spin-animation-behavior-and-centered-rotation",
-      "featureTitle": "Reduce the HDD platter (disk layer) brightness to improve contrast while preserving the existing disk spin animation behavior and centered rotation.",
-      "files": [
-        "frontend/src/components/StudioComponents.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0",
-        "blob-storage@4.0.0"
-      ],
-      "testIds": [
-        "REQ-91"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-a-subtle-shadow-cast-by-the-hdd-arm-onto-the-platter-shadow-should-visually-sit-between-the-arm-and-the-disk-layers-to-better-differentiate-the-arm-from-the-platter",
-      "featureTitle": "Add a subtle shadow cast by the HDD arm onto the platter (shadow should visually sit between the arm and the disk layers) to better differentiate the arm from the platter.",
+      "featureId": "feature-update-the-hdd-arm-rotation-so-it-strictly-operates-only-within-20-to-42-measured-from-horizontal-0-and-evenly-maps-exactly-13-categories-such-that-category-1-corresponds-to-42-and-category-13-corresponds-to-20-with-linear-interpolation-for-categories-2-12-ensure-the-ui-uses-exactly-these-13-categories-for-the-mapping",
+      "featureTitle": "Update the HDD arm rotation so it strictly operates only within 20° to 42° (measured from horizontal 0°) and evenly maps exactly 13 categories such that category 1 corresponds to 42° and category 13 corresponds to 20° (with linear interpolation for categories 2–12). Ensure the UI uses exactly these 13 categories for the mapping.",
       "files": [
         "frontend/src/components/StudioComponents.tsx",
-        "frontend/src/index.css"
+        "frontend/src/data/categories.ts"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -78,47 +38,7 @@
         "blob-storage@4.0.0"
       ],
       "testIds": [
-        "REQ-92"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-reduce-the-rendered-size-of-the-platter-image-layer-by-approximately-2-relative-to-the-current-platter-render-size-without-changing-its-aspect-ratio-must-stay-1-1-or-its-centered-rotation-behavior",
-      "featureTitle": "Reduce the rendered size of the platter image layer by approximately 2% (relative to the current platter render size), without changing its aspect ratio (must stay 1:1) or its centered rotation behavior.",
-      "files": [
-        "frontend/src/components/StudioComponents.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0",
-        "blob-storage@4.0.0"
-      ],
-      "testIds": [
-        "REQ-93"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-reduce-the-entire-hddhub-rendered-size-by-approximately-25-scale-down-the-full-hdd-visualization-including-body-platter-and-arm-while-keeping-it-centered-in-the-right-column-and-preserving-all-layering-offsets-and-interaction-hit-areas",
-      "featureTitle": "Reduce the entire HDDHub rendered size by approximately 25% (scale down the full HDD visualization including body, platter, and arm), while keeping it centered in the right column and preserving all layering, offsets, and interaction hit areas.",
-      "files": [
-        "frontend/src/components/StudioComponents.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0",
-        "blob-storage@4.0.0"
-      ],
-      "testIds": [
-        "REQ-94"
+        "REQ-2"
       ],
       "confidence": "high"
     }

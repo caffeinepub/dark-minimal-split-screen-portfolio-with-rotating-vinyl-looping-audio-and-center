@@ -111,9 +111,10 @@ export function VinylPlayer({ compact = false }: VinylPlayerProps) {
     }
   };
 
-  const vinylSize = compact ? 'h-24 w-24 lg:h-32 lg:w-32' : 'h-64 w-64 lg:h-96 lg:w-96';
-  const buttonSize = compact ? 'h-10 w-10 lg:h-12 lg:w-12' : 'h-16 w-16';
-  const iconSize = compact ? 'h-5 w-5 lg:h-6 lg:w-6' : 'h-8 w-8';
+  // Inline placement: slightly larger vinyl, smaller button
+  const vinylSize = compact ? 'h-24 w-24 lg:h-32 lg:w-32' : 'h-48 w-48 lg:h-56 lg:w-56';
+  const buttonSize = compact ? 'h-10 w-10 lg:h-12 lg:w-12' : 'h-12 w-12';
+  const iconSize = compact ? 'h-5 w-5 lg:h-6 lg:w-6' : 'h-6 w-6';
 
   return (
     <div className="relative flex items-center justify-center">
@@ -158,9 +159,10 @@ export function VinylPlayer({ compact = false }: VinylPlayerProps) {
 interface HDDHubProps {
   hoveredCategoryId: string | null;
   selectedCategoryId: string | null;
+  anchorRef?: React.RefObject<HTMLDivElement | null>;
 }
 
-export function HDDHub({ hoveredCategoryId, selectedCategoryId }: HDDHubProps) {
+export function HDDHub({ hoveredCategoryId, selectedCategoryId, anchorRef }: HDDHubProps) {
   const [bodyFallbackIndex, setBodyFallbackIndex] = useState(0);
   const [diskFallbackIndex, setDiskFallbackIndex] = useState(0);
   const [armFallbackIndex, setArmFallbackIndex] = useState(0);
@@ -177,16 +179,19 @@ export function HDDHub({ hoveredCategoryId, selectedCategoryId }: HDDHubProps) {
 
   const activeLaneIndex = activeCategoryId ? categoryToLaneIndex.get(activeCategoryId) ?? null : null;
 
-  const ANGLE_FIRST_LANE = 42;
-  const ANGLE_LAST_LANE = 20;
-  const DEFAULT_ANGLE = ANGLE_FIRST_LANE;
+  // Updated arm rotation: 42° for first category (index 0), 20° for 13th category (index 12)
+  const FIRST_CATEGORY_ANGLE = 42;
+  const LAST_CATEGORY_ANGLE = 20;
+  const DEFAULT_ANGLE = 31; // Midpoint when no category is active
 
   const armRotation = useMemo(() => {
     if (activeLaneIndex === null) return DEFAULT_ANGLE;
     
     const totalLanes = categories.length;
-    const rotation = ANGLE_FIRST_LANE + (activeLaneIndex * (ANGLE_LAST_LANE - ANGLE_FIRST_LANE)) / (totalLanes - 1);
-    return Math.max(ANGLE_LAST_LANE, Math.min(ANGLE_FIRST_LANE, rotation));
+    // Linear mapping: index 0 → 42°, index 12 → 20°
+    const rotation = FIRST_CATEGORY_ANGLE + (activeLaneIndex * (LAST_CATEGORY_ANGLE - FIRST_CATEGORY_ANGLE)) / (totalLanes - 1);
+    // Clamp to ensure we stay within [20, 42]
+    return Math.max(LAST_CATEGORY_ANGLE, Math.min(FIRST_CATEGORY_ANGLE, rotation));
   }, [activeLaneIndex]);
 
   const diskSpinning = !!activeCategoryId;
@@ -297,6 +302,20 @@ export function HDDHub({ hoveredCategoryId, selectedCategoryId }: HDDHubProps) {
             onError={handleArmError}
           />
         </div>
+
+        {/* Anchor point for electron effect (bottom-left of HDD) */}
+        {anchorRef && (
+          <div
+            ref={anchorRef}
+            className="absolute pointer-events-none"
+            style={{
+              left: '10%',
+              bottom: '15%',
+              width: '1px',
+              height: '1px',
+            }}
+          />
+        )}
       </div>
     </div>
   );
@@ -427,11 +446,12 @@ export function PhotoGalleryOverlayPanel() {
               </Label>
               <Input
                 id="image-title"
+                type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 disabled={uploadMutation.isPending}
+                className="mt-2 bg-white/5 text-white border-white/20"
                 placeholder="Enter image title"
-                className="mt-2 bg-white/5 text-white border-white/20 placeholder:text-white/40"
               />
             </div>
 
@@ -444,9 +464,9 @@ export function PhotoGalleryOverlayPanel() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 disabled={uploadMutation.isPending}
+                className="mt-2 bg-white/5 text-white border-white/20"
                 placeholder="Enter image description (optional)"
                 rows={3}
-                className="mt-2 bg-white/5 text-white border-white/20 placeholder:text-white/40"
               />
             </div>
 
@@ -465,20 +485,11 @@ export function PhotoGalleryOverlayPanel() {
               </div>
             )}
 
-            {uploadMutation.isError && (
-              <Alert variant="destructive" className="bg-red-500/10 border-red-500/20">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  Upload failed. Please try again.
-                </AlertDescription>
-              </Alert>
-            )}
-
             <div className="flex gap-3">
               <Button
                 onClick={handleUpload}
                 disabled={!selectedFile || !title.trim() || uploadMutation.isPending}
-                className="flex-1 bg-white/90 text-black hover:bg-white"
+                className="flex-1 bg-white/10 hover:bg-white/20 text-white"
               >
                 {uploadMutation.isPending ? (
                   <>
@@ -497,7 +508,7 @@ export function PhotoGalleryOverlayPanel() {
                   onClick={handleCancelUpload}
                   disabled={uploadMutation.isPending}
                   variant="outline"
-                  className="border-white/20 bg-white/5 text-white hover:bg-white/10"
+                  className="bg-white/5 hover:bg-white/10 text-white border-white/20"
                 >
                   Cancel
                 </Button>
@@ -508,43 +519,43 @@ export function PhotoGalleryOverlayPanel() {
       ) : (
         <Alert className="bg-white/5 border-white/20">
           <ImageIcon className="h-4 w-4 text-white/60" />
-          <AlertDescription className="text-white/70">
-            Gallery is read-only. Admin access required to upload images.
+          <AlertDescription className="text-white/80">
+            This gallery is read-only. Only administrators can upload images.
           </AlertDescription>
         </Alert>
       )}
 
-      <div>
-        <h3 className="mb-6 text-xl font-light text-white">Gallery</h3>
+      {/* Image Grid */}
+      <div className="space-y-4">
+        <h3 className="text-xl font-light text-white">Gallery</h3>
         
         {images && images.length > 0 ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-6">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {images.map(([id, metadata]) => (
               <div
                 key={id.toString()}
-                className="group relative overflow-hidden rounded-lg bg-white/5 backdrop-blur-sm transition-all duration-300 hover:bg-white/10"
+                className="group relative aspect-video overflow-hidden rounded-lg bg-white/5"
               >
-                <div className="aspect-video w-full overflow-hidden">
-                  <img
-                    src={metadata.blob.getDirectURL()}
-                    alt={metadata.title}
-                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                </div>
-                
-                <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                  <h4 className="text-lg font-light text-white">{metadata.title}</h4>
-                  {metadata.description && (
-                    <p className="mt-1 text-sm text-white/70">{metadata.description}</p>
-                  )}
+                <img
+                  src={metadata.blob.getDirectURL()}
+                  alt={metadata.title}
+                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <h4 className="text-lg font-medium text-white">{metadata.title}</h4>
+                    {metadata.description && (
+                      <p className="mt-1 text-sm text-white/80">{metadata.description}</p>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center rounded-lg bg-white/5 py-12 text-center">
-            <ImageIcon className="mb-4 h-12 w-12 text-white/40" />
-            <p className="text-white/60">No images in the gallery yet.</p>
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <ImageIcon className="h-12 w-12 text-white/20" />
+            <p className="mt-4 text-white/60">No images in the gallery yet.</p>
           </div>
         )}
       </div>
@@ -557,15 +568,12 @@ export function PhotoGalleryOverlayPanel() {
 // ============================================================================
 
 interface CategoryOverlayProps {
-  category: Category | null;
-  open: boolean;
+  category: Category;
   onClose: () => void;
 }
 
-export function CategoryOverlay({ category, open, onClose }: CategoryOverlayProps) {
+export function CategoryOverlay({ category, onClose }: CategoryOverlayProps) {
   useEffect(() => {
-    if (!open) return;
-
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onClose();
@@ -574,76 +582,78 @@ export function CategoryOverlay({ category, open, onClose }: CategoryOverlayProp
 
     window.addEventListener('keydown', handleEscape);
     return () => window.removeEventListener('keydown', handleEscape);
-  }, [open, onClose]);
-
-  if (!open || !category) return null;
+  }, [onClose]);
 
   const overlayContent = getOverlayContent(category.id);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+      onClick={onClose}
+    >
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      
-      <div className="glass-overlay-panel relative z-10 flex h-[90vh] w-full max-w-6xl flex-col rounded-2xl">
-        <div className="flex items-center justify-between border-b border-white/10 p-6 lg:p-8">
-          <div>
-            <h2 className="text-3xl font-light text-white lg:text-4xl">
-              {category.name}
-            </h2>
-            <p className="mt-2 text-base text-white/70 lg:text-lg">
-              {category.description}
-            </p>
-          </div>
+        className="relative w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl bg-white/10 shadow-2xl backdrop-blur-md"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-white/5 px-6 py-4 backdrop-blur-sm lg:px-8">
+          <h2 className="text-2xl font-light text-white lg:text-3xl">{category.name}</h2>
           <Button
             onClick={onClose}
-            variant="ghost"
             size="icon"
-            className="h-10 w-10 rounded-full text-white/70 hover:bg-white/10 hover:text-white"
+            variant="ghost"
+            className="text-white/80 hover:bg-white/10 hover:text-white"
             aria-label="Close overlay"
           >
             <X className="h-6 w-6" />
           </Button>
         </div>
 
-        <ScrollArea className="flex-1 p-6 lg:p-8">
-          {category.id === 'photo-gallery' ? (
-            <PhotoGalleryOverlayPanel />
-          ) : overlayContent ? (
-            <div className="space-y-8">
-              {overlayContent.sections.map((section, index) => (
-                <div key={index} className="space-y-4">
-                  {section.type === 'text' && (
-                    <div className="prose prose-invert max-w-none">
-                      <p className="text-white/80 leading-relaxed">{section.content}</p>
-                    </div>
-                  )}
-                  
-                  {section.type === 'photos' && section.photos && (
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                      {section.photos.map((photo) => (
-                        <div
-                          key={photo.id}
-                          className="overflow-hidden rounded-lg bg-white/5"
-                          style={{ aspectRatio: photo.aspectRatio }}
-                        >
-                          <div className="flex h-full items-center justify-center text-white/40">
-                            <ImageIcon className="h-12 w-12" />
+        <ScrollArea className="h-[calc(90vh-5rem)]">
+          <div className="px-6 py-8 lg:px-8 lg:py-10">
+            {category.id === 'photogallery' ? (
+              <PhotoGalleryOverlayPanel />
+            ) : overlayContent ? (
+              <div className="space-y-8">
+                {overlayContent.sections.map((section, index) => (
+                  <div key={index}>
+                    {section.type === 'photos' && section.photos ? (
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        {section.photos.map((photo) => (
+                          <div
+                            key={photo.id}
+                            className="overflow-hidden rounded-lg bg-white/5"
+                            style={{ aspectRatio: photo.aspectRatio }}
+                          >
+                            <div className="flex h-full w-full items-center justify-center text-white/40">
+                              {photo.placeholder}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
+                    ) : section.type === 'text' && section.content ? (
+                      <p className="text-lg leading-relaxed text-white/80">{section.content}</p>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <p className="text-lg leading-relaxed text-white/80">{category.description}</p>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div
+                      key={i}
+                      className="aspect-video overflow-hidden rounded-lg bg-white/5"
+                    >
+                      <div className="flex h-full w-full items-center justify-center text-white/40">
+                        Placeholder {i}
+                      </div>
                     </div>
-                  )}
+                  ))}
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="flex items-center justify-center py-12 text-white/60">
-              <p>Content coming soon...</p>
-            </div>
-          )}
+              </div>
+            )}
+          </div>
         </ScrollArea>
       </div>
     </div>

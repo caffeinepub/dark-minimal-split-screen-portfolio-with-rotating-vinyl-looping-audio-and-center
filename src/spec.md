@@ -1,14 +1,10 @@
 # Specification
 
 ## Summary
-**Goal:** Visually tune the HDDHub component by adjusting arm angle mapping, overall opacity, platter brightness/size, adding a subtle arm shadow, and scaling down the full HDD visualization—without changing existing interactions or overlays.
+**Goal:** Move the VinylPlayer into the “shibhi.studio” header area on the right, and constrain the HDD arm rotation to a strict 20°–42° range mapped evenly across exactly 13 categories.
 
 **Planned changes:**
-- Update HDDHub arm rotation mapping so lane/category 1 renders at 42° and lane/category 13 renders at 20°, linearly interpolated across lanes; default/rest angle remains 42° when nothing is hovered/selected.
-- Apply ~75% opacity to the entire HDDHub composite (body + platter + arm) while keeping the left menu and VinylPlayer overlay unchanged and interactions intact.
-- Reduce only the platter (disk layer) brightness to improve contrast while keeping the existing spin behavior and centered rotation.
-- Add a subtle arm-cast shadow between the arm and platter layers that follows the arm’s movement/rotation.
-- Reduce platter render size by ~2% (keep 1:1 aspect ratio and centered rotation).
-- Scale down the entire HDDHub visualization by ~25% while keeping it centered in the right column and preserving alignment and interaction hit areas.
+- Reposition the VinylPlayer so it renders at the right end of the “shibhi.studio” header/title area on desktop, with a responsive layout on smaller screens that keeps it near the header (no overlap/cutoff, not far down the page).
+- Update HDD arm rotation logic to clamp strictly between 20° and 42°, and linearly map exactly 13 visible/active categories so category 1 = 42° and category 13 = 20° (with evenly spaced angles for categories 2–12).
 
-**User-visible outcome:** The HDDHub appears smaller, slightly transparent, and more legible (dimmer platter + arm shadow), with the arm resting at 42° by default and smoothly mapping down to 20° on the last category, while all hover/click behaviors and the VinylPlayer remain the same.
+**User-visible outcome:** The vinyl appears at the right side of the “shibhi.studio” header on desktop (and stays near the header on smaller screens), and the HDD arm reliably rotates only within 20°–42° with predictable positions for all 13 categories.
