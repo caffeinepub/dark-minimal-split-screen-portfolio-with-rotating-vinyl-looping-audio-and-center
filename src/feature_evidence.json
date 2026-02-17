@@ -2,11 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-move-the-vinylplayer-s-vinyl-record-image-closer-to-the-shibhi-studio-header-wordmark-and-align-the-vinyl-s-visual-axis-horizontally-with-the-shibhi-studio-wordline-across-relevant-breakpoints",
-      "featureTitle": "Move the VinylPlayer’s vinyl record image closer to the “shibhi.studio” header wordmark and align the vinyl’s visual axis horizontally with the “shibhi.studio” wordline across relevant breakpoints.",
+      "featureId": "feature-adjust-the-electronhoverlink-pcb-track-path-routing-so-the-connection-track-does-not-turn-excessively-and-all-bends-remain-natural-with-a-maximum-bend-angle-of-45-i-e-only-horizontal-vertical-segments-connected-by-45-diagonals-without-additional-sharper-turns-or-overly-aggressive-detours",
+      "featureTitle": "Adjust the ElectronHoverLink (PCB track) path routing so the connection track does not “turn” excessively and all bends remain natural with a maximum bend angle of 45° (i.e., only horizontal/vertical segments connected by 45° diagonals, without additional sharper turns or overly aggressive detours).",
       "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/components/StudioComponents.tsx"
+        "frontend/src/components/ElectronHoverLink.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -23,72 +22,9 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-mirror-the-hdd-tonearm-motion-so-the-arm-s-swing-rotation-appears-on-the-right-side-of-the-platter-instead-of-the-left-keeping-the-existing-category-to-angle-behavior-but-mirrored-across-the-x-axis",
-      "featureTitle": "Mirror the HDD tonearm motion so the arm’s swing/rotation appears on the right side of the platter (instead of the left), keeping the existing category-to-angle behavior but mirrored across the X axis.",
+      "featureId": "feature-slightly-reduce-the-intensity-of-the-electronhoverlink-glowing-moving-visuals-the-traveling-glow-segment-and-glow-head-while-preserving-the-same-overall-style-and-timing",
+      "featureTitle": "Slightly reduce the intensity of the ElectronHoverLink glowing/moving visuals (the traveling glow segment and glow head), while preserving the same overall style and timing.",
       "files": [
-        "frontend/src/components/StudioComponents.tsx",
-        "frontend/src/index.css"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0",
-        "blob-storage@4.0.0"
-      ],
-      "testIds": [
-        "REQ-2"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-increase-the-hdd-platter-spin-speed-to-3-the-previous-speed-and-on-hover-gradually-accelerate-to-the-faster-speed-ease-in-rather-than-switching-instantly",
-      "featureTitle": "Increase the HDD platter spin speed to 3× the previous speed, and on hover gradually accelerate to the faster speed (ease-in) rather than switching instantly.",
-      "files": [
-        "frontend/src/components/StudioComponents.tsx",
-        "frontend/src/index.css"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0",
-        "blob-storage@4.0.0"
-      ],
-      "testIds": [
-        "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-slightly-reduce-the-opacity-of-the-vinylplayer-play-pause-toggle-button-while-preserving-accessibility-contrast-and-focus-styles",
-      "featureTitle": "Slightly reduce the opacity of the VinylPlayer play/pause toggle button while preserving accessibility (contrast and focus styles).",
-      "files": [
-        "frontend/src/components/StudioComponents.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0",
-        "blob-storage@4.0.0"
-      ],
-      "testIds": [
-        "REQ-4"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-increase-the-glow-intensity-of-the-existing-electron-link-line-and-add-visibly-moving-particles-through-it-specifically-while-the-target-category-is-hovered-i-e-when-electronhoverlink-is-active",
-      "featureTitle": "Increase the glow intensity of the existing electron-link line and add visibly moving particles through it specifically while the target category is hovered (i.e., when ElectronHoverLink is active).",
-      "files": [
-        "frontend/src/App.tsx",
         "frontend/src/components/ElectronHoverLink.tsx"
       ],
       "components": [
@@ -101,7 +37,7 @@
         "blob-storage@4.0.0"
       ],
       "testIds": [
-        "REQ-5"
+        "REQ-2"
       ],
       "confidence": "high"
     }

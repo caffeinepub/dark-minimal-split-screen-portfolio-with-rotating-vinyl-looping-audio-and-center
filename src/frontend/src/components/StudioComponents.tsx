@@ -170,8 +170,8 @@ export function HDDHub({ hoveredCategoryId, selectedCategoryId, anchorRef }: HDD
   const diskRef = useRef<HTMLDivElement>(null);
   const animationFrameRef = useRef<number | undefined>(undefined);
   const lastTimeRef = useRef<number>(0);
-  const targetSpeedRef = useRef<number>(1);
-  const currentSpeedRef = useRef<number>(1);
+  const targetSpeedRef = useRef<number>(0);
+  const currentSpeedRef = useRef<number>(0);
 
   const activeCategoryId = hoveredCategoryId || selectedCategoryId;
 
@@ -189,10 +189,12 @@ export function HDDHub({ hoveredCategoryId, selectedCategoryId, anchorRef }: HDD
   // Mirrored: Apply scaleX(-1) to flip the arm horizontally
   const ARM_BASELINE_DEG = -90;
   
-  // Category angle mapping: 30° for first category (index 0) to achieve -60° final rotation, 20° for 13th category (index 12)
-  const FIRST_CATEGORY_ANGLE = 30;
+  // Category angle mapping: 25° for first category (index 0) to achieve -65° final rotation, 20° for 13th category (index 12)
+  // Special case: Photography category gets extra upward rotation (30° instead of mapped value)
+  const FIRST_CATEGORY_ANGLE = 25;
   const LAST_CATEGORY_ANGLE = 20;
-  const DEFAULT_ANGLE = 25; // Midpoint when no category is active
+  const PHOTOGRAPHY_ANGLE = 30; // Extra upward rotation for photography
+  const DEFAULT_ANGLE = 22.5; // Midpoint when no category is active
 
   const armRotation = useMemo(() => {
     let mappedAngleDeg: number;
@@ -200,24 +202,43 @@ export function HDDHub({ hoveredCategoryId, selectedCategoryId, anchorRef }: HDD
     if (activeLaneIndex === null) {
       mappedAngleDeg = DEFAULT_ANGLE;
     } else {
-      const totalLanes = categories.length;
-      // Linear mapping: index 0 → 30°, index 12 → 20°
-      const rotation = FIRST_CATEGORY_ANGLE + (activeLaneIndex * (LAST_CATEGORY_ANGLE - FIRST_CATEGORY_ANGLE)) / (totalLanes - 1);
-      // Clamp to ensure we stay within [20, 30]
-      mappedAngleDeg = Math.max(LAST_CATEGORY_ANGLE, Math.min(FIRST_CATEGORY_ANGLE, rotation));
+      // Check if the active category is photography (only when hovering)
+      const isPhotographyHovered = hoveredCategoryId === 'photography';
+      
+      if (isPhotographyHovered) {
+        // Apply extra upward rotation for photography
+        mappedAngleDeg = PHOTOGRAPHY_ANGLE;
+      } else {
+        const totalLanes = categories.length;
+        // Linear mapping: index 0 → 25°, index 12 → 20°
+        const rotation = FIRST_CATEGORY_ANGLE + (activeLaneIndex * (LAST_CATEGORY_ANGLE - FIRST_CATEGORY_ANGLE)) / (totalLanes - 1);
+        // Clamp to ensure we stay within [20, 25]
+        mappedAngleDeg = Math.max(LAST_CATEGORY_ANGLE, Math.min(FIRST_CATEGORY_ANGLE, rotation));
+      }
     }
     
     // Apply baseline correction: finalRotationDeg = ARM_BASELINE_DEG + mappedAngleDeg
     const finalRotationDeg = ARM_BASELINE_DEG + mappedAngleDeg;
     return finalRotationDeg;
-  }, [activeLaneIndex]);
+  }, [activeLaneIndex, hoveredCategoryId]);
 
   const diskActive = !!activeCategoryId;
 
-  // Smooth disk rotation with 3x baseline speed and acceleration on hover
+  // Smooth disk rotation: static when inactive, accelerate from 0 to 3x on hover
   useEffect(() => {
-    // Set target speed: 3x baseline (3 RPS), 5x when active (5 RPS)
-    targetSpeedRef.current = diskActive ? 5 : 3;
+    // Set target speed: 0 when inactive, 3 RPS when active
+    targetSpeedRef.current = diskActive ? 3 : 0;
+
+    // Only run animation if we need to change speed or if we're currently spinning
+    if (currentSpeedRef.current === 0 && targetSpeedRef.current === 0) {
+      // Fully stopped, no need to animate
+      if (animationFrameRef.current !== undefined) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = undefined;
+      }
+      lastTimeRef.current = 0;
+      return;
+    }
 
     const animate = (timestamp: number) => {
       if (lastTimeRef.current === 0) {
@@ -227,24 +248,42 @@ export function HDDHub({ hoveredCategoryId, selectedCategoryId, anchorRef }: HDD
       const deltaTime = (timestamp - lastTimeRef.current) / 1000; // Convert to seconds
       lastTimeRef.current = timestamp;
 
-      // Smoothly interpolate current speed towards target speed
+      // Smoothly interpolate current speed towards target speed with faster acceleration
       const speedDiff = targetSpeedRef.current - currentSpeedRef.current;
-      const acceleration = 8; // Speed change per second
+      const acceleration = 12; // Faster acceleration (was 8)
       const speedChange = Math.sign(speedDiff) * Math.min(Math.abs(speedDiff), acceleration * deltaTime);
       currentSpeedRef.current += speedChange;
+
+      // Clamp to prevent overshoot
+      if (Math.abs(speedDiff) < 0.01) {
+        currentSpeedRef.current = targetSpeedRef.current;
+      }
 
       // Update rotation based on current speed (degrees per second)
       const degreesPerSecond = currentSpeedRef.current * 360;
       setCurrentRotation((prev) => (prev + degreesPerSecond * deltaTime) % 360);
 
+      // Stop animation if we've reached 0 speed
+      if (currentSpeedRef.current === 0 && targetSpeedRef.current === 0) {
+        if (animationFrameRef.current !== undefined) {
+          cancelAnimationFrame(animationFrameRef.current);
+          animationFrameRef.current = undefined;
+        }
+        lastTimeRef.current = 0;
+        return;
+      }
+
       animationFrameRef.current = requestAnimationFrame(animate);
     };
 
+    // Reset timing when starting animation to prevent delta spikes
+    lastTimeRef.current = 0;
     animationFrameRef.current = requestAnimationFrame(animate);
 
     return () => {
       if (animationFrameRef.current !== undefined) {
         cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = undefined;
       }
     };
   }, [diskActive]);
@@ -269,13 +308,13 @@ export function HDDHub({ hoveredCategoryId, selectedCategoryId, anchorRef }: HDD
 
   return (
     <div className="relative flex h-full w-full items-center justify-center">
-      {/* Wrapper for 75% opacity and 25% scale reduction */}
+      {/* Wrapper with reduced size (60% scale instead of 75%) */}
       <div 
         className="relative w-full max-w-[500px]" 
         style={{ 
           aspectRatio: '3 / 4',
           opacity: 0.75,
-          transform: 'scale(0.75)',
+          transform: 'scale(0.6)',
         }}
       >
         {/* Body layer */}
@@ -324,7 +363,7 @@ export function HDDHub({ hoveredCategoryId, selectedCategoryId, anchorRef }: HDD
           </div>
         </div>
 
-        {/* Arm shadow layer - mirrored with scaleX(-1) */}
+        {/* Arm shadow layer - mirrored with scaleX(-1) and reduced opacity */}
         <div
           className="absolute transition-transform duration-500 ease-out pointer-events-none hdd-arm-shadow"
           style={{
@@ -334,10 +373,11 @@ export function HDDHub({ hoveredCategoryId, selectedCategoryId, anchorRef }: HDD
             aspectRatio: '1.6 / 4',
             transform: `scaleX(-1) rotate(${armRotation}deg)`,
             transformOrigin: 'center 90%',
+            opacity: 0.5,
           }}
         />
 
-        {/* Arm layer - mirrored with scaleX(-1) */}
+        {/* Arm layer - mirrored with scaleX(-1) and reduced opacity */}
         <div
           className="absolute transition-transform duration-500 ease-out"
           style={{
@@ -347,6 +387,7 @@ export function HDDHub({ hoveredCategoryId, selectedCategoryId, anchorRef }: HDD
             aspectRatio: '1.6 / 4',
             transform: `scaleX(-1) rotate(${armRotation}deg)`,
             transformOrigin: 'center 90%',
+            opacity: 0.5,
           }}
         >
           <img
@@ -381,23 +422,19 @@ export function HDDHub({ hoveredCategoryId, selectedCategoryId, anchorRef }: HDD
 // ============================================================================
 
 export function PhotoGalleryOverlayPanel() {
-  const { data: images, isLoading: imagesLoading, error: imagesError } = useListImages();
-  const { data: isAdmin, isLoading: adminLoading } = useIsAdmin();
+  const { data: images = [], isLoading, error } = useListImages();
+  const { data: isAdmin = false } = useIsAdmin();
   const uploadMutation = useUploadImage();
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [uploadProgress, setUploadProgress] = useState(0);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && file.type.startsWith('image/')) {
+    if (file) {
       setSelectedFile(file);
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
     }
   };
 
@@ -412,39 +449,17 @@ export function PhotoGalleryOverlayPanel() {
         onProgress: setUploadProgress,
       });
 
+      // Reset form
       setSelectedFile(null);
-      setPreviewUrl(null);
       setTitle('');
       setDescription('');
       setUploadProgress(0);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
     } catch (error) {
       console.error('Upload failed:', error);
     }
   };
 
-  const handleCancelUpload = () => {
-    setSelectedFile(null);
-    setPreviewUrl(null);
-    setTitle('');
-    setDescription('');
-    setUploadProgress(0);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
-
-  useEffect(() => {
-    return () => {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
-    };
-  }, [previewUrl]);
-
-  if (adminLoading || imagesLoading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="h-8 w-8 animate-spin text-white/60" />
@@ -452,12 +467,12 @@ export function PhotoGalleryOverlayPanel() {
     );
   }
 
-  if (imagesError) {
+  if (error) {
     return (
-      <Alert variant="destructive" className="bg-red-500/10 border-red-500/20">
+      <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          Failed to load images. Please try again later.
+          Failed to load gallery images. Please try again later.
         </AlertDescription>
       </Alert>
     );
@@ -466,137 +481,106 @@ export function PhotoGalleryOverlayPanel() {
   return (
     <div className="space-y-8">
       {isAdmin ? (
-        <div className="rounded-lg bg-white/5 p-6 backdrop-blur-sm lg:p-8">
-          <h3 className="mb-6 text-xl font-light text-white">Upload New Image</h3>
-          
-          <div className="space-y-6">
+        <div className="rounded-lg border border-white/20 bg-white/5 p-6 backdrop-blur-sm">
+          <h3 className="mb-4 text-lg font-medium text-white">Upload New Image</h3>
+          <div className="space-y-4">
             <div>
-              <Label htmlFor="image-file" className="text-white/80">
-                Select Image
+              <Label htmlFor="file" className="text-white/80">
+                Image File
               </Label>
               <Input
-                ref={fileInputRef}
-                id="image-file"
+                id="file"
                 type="file"
                 accept="image/*"
-                onChange={handleFileSelect}
-                className="mt-2 bg-white/5 text-white border-white/20"
+                onChange={handleFileChange}
+                className="mt-1 border-white/20 bg-white/5 text-white"
               />
             </div>
 
-            {previewUrl && (
-              <div className="space-y-4">
-                <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-black/20">
-                  <img
-                    src={previewUrl}
-                    alt="Preview"
-                    className="h-full w-full object-contain"
+            <div>
+              <Label htmlFor="title" className="text-white/80">
+                Title
+              </Label>
+              <Input
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Enter image title"
+                className="mt-1 border-white/20 bg-white/5 text-white placeholder:text-white/40"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="description" className="text-white/80">
+                Description
+              </Label>
+              <Textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Enter image description"
+                className="mt-1 border-white/20 bg-white/5 text-white placeholder:text-white/40"
+              />
+            </div>
+
+            {uploadProgress > 0 && uploadProgress < 100 && (
+              <div className="space-y-2">
+                <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
+                  <div
+                    className="h-full bg-white/60 transition-all duration-300"
+                    style={{ width: `${uploadProgress}%` }}
                   />
                 </div>
-
-                <div>
-                  <Label htmlFor="image-title" className="text-white/80">
-                    Title *
-                  </Label>
-                  <Input
-                    id="image-title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Enter image title"
-                    className="mt-2 bg-white/5 text-white border-white/20"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="image-description" className="text-white/80">
-                    Description
-                  </Label>
-                  <Textarea
-                    id="image-description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Enter image description (optional)"
-                    className="mt-2 bg-white/5 text-white border-white/20"
-                    rows={3}
-                  />
-                </div>
-
-                {uploadMutation.isPending && (
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-sm text-white/60">
-                      <span>Uploading...</span>
-                      <span>{uploadProgress}%</span>
-                    </div>
-                    <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
-                      <div
-                        className="h-full bg-white/60 transition-all duration-300"
-                        style={{ width: `${uploadProgress}%` }}
-                      />
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex gap-3">
-                  <Button
-                    onClick={handleUpload}
-                    disabled={!title.trim() || uploadMutation.isPending}
-                    className="flex-1 bg-white/20 hover:bg-white/30 text-white"
-                  >
-                    {uploadMutation.isPending ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Uploading...
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="mr-2 h-4 w-4" />
-                        Upload
-                      </>
-                    )}
-                  </Button>
-                  <Button
-                    onClick={handleCancelUpload}
-                    disabled={uploadMutation.isPending}
-                    variant="outline"
-                    className="bg-white/5 hover:bg-white/10 text-white border-white/20"
-                  >
-                    Cancel
-                  </Button>
-                </div>
+                <p className="text-sm text-white/60">Uploading: {uploadProgress}%</p>
               </div>
             )}
+
+            <Button
+              onClick={handleUpload}
+              disabled={!selectedFile || !title.trim() || uploadMutation.isPending}
+              className="w-full"
+            >
+              {uploadMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Uploading...
+                </>
+              ) : (
+                <>
+                  <Upload className="mr-2 h-4 w-4" />
+                  Upload Image
+                </>
+              )}
+            </Button>
           </div>
         </div>
       ) : (
-        <Alert className="bg-white/5 border-white/20">
-          <AlertCircle className="h-4 w-4 text-white/60" />
-          <AlertDescription className="text-white/80">
+        <Alert>
+          <ImageIcon className="h-4 w-4" />
+          <AlertDescription>
             This gallery is read-only. Only administrators can upload images.
           </AlertDescription>
         </Alert>
       )}
 
-      {images && images.length > 0 ? (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {images.length > 0 ? (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {images.map(([id, metadata]) => (
             <div
               key={id.toString()}
-              className="group relative overflow-hidden rounded-lg bg-white/5 backdrop-blur-sm transition-all duration-300 hover:bg-white/10"
+              className="group relative overflow-hidden rounded-lg border border-white/20 bg-white/5 backdrop-blur-sm transition-all hover:border-white/40"
             >
-              <div className="relative aspect-video w-full overflow-hidden bg-black/20">
+              <div className="aspect-square overflow-hidden">
                 <img
                   src={metadata.blob.getDirectURL()}
                   alt={metadata.title}
-                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               </div>
-              <div className="p-4">
-                <h4 className="font-medium text-white">{metadata.title}</h4>
+              <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                <h4 className="text-lg font-medium text-white">{metadata.title}</h4>
                 {metadata.description && (
-                  <p className="mt-1 text-sm text-white/60 line-clamp-2">
-                    {metadata.description}
-                  </p>
+                  <p className="mt-1 text-sm text-white/80">{metadata.description}</p>
                 )}
               </div>
             </div>
@@ -604,13 +588,8 @@ export function PhotoGalleryOverlayPanel() {
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <ImageIcon className="h-16 w-16 text-white/20 mb-4" />
-          <p className="text-lg text-white/60">No images yet</p>
-          {isAdmin && (
-            <p className="mt-2 text-sm text-white/40">
-              Upload your first image to get started
-            </p>
-          )}
+          <ImageIcon className="mb-4 h-12 w-12 text-white/40" />
+          <p className="text-white/60">No images in the gallery yet.</p>
         </div>
       )}
     </div>
@@ -642,78 +621,73 @@ export function CategoryOverlay({ category, onClose }: CategoryOverlayProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-4xl max-h-[90vh] rounded-2xl bg-white/10 backdrop-blur-md shadow-2xl"
+        className="relative h-full w-full max-w-6xl overflow-hidden rounded-2xl border border-white/20 bg-black/40 shadow-2xl backdrop-blur-md"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-white/5 px-6 py-4 backdrop-blur-md">
-          <h2 className="text-2xl font-light text-white">{category.name}</h2>
-          <Button
-            onClick={onClose}
-            size="icon"
-            variant="ghost"
-            className="text-white/60 hover:text-white hover:bg-white/10"
-            aria-label="Close overlay"
-          >
-            <X className="h-6 w-6" />
-          </Button>
-        </div>
-
-        <ScrollArea className="h-[calc(90vh-5rem)]">
-          <div className="p-6 lg:p-8">
-            {category.id === 'photo-gallery' ? (
-              <PhotoGalleryOverlayPanel />
-            ) : overlayContent ? (
-              <div className="space-y-8">
-                {overlayContent.sections.map((section, index) => (
-                  <div key={index}>
-                    {section.type === 'photos' && section.photos && (
-                      <div
-                        className="grid gap-4"
-                        style={{
-                          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                        }}
-                      >
-                        {section.photos.map((photo, photoIndex) => (
-                          <div
-                            key={photoIndex}
-                            className="overflow-hidden rounded-lg bg-white/5"
-                            style={{
-                              aspectRatio: photo.aspectRatio || '1 / 1',
-                            }}
-                          >
-                            <div className="h-full w-full bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center">
-                              <span className="text-white/40 text-sm">
-                                {photo.placeholder || 'Image'}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    {section.type === 'text' && section.content && (
-                      <div className="prose prose-invert max-w-none">
-                        <p className="text-white/80 leading-relaxed">
-                          {section.content}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <p className="text-lg text-white/80">{category.description}</p>
-                <div className="rounded-lg bg-white/5 p-8 text-center">
-                  <p className="text-white/40">Content coming soon...</p>
-                </div>
-              </div>
-            )}
+        <div className="flex h-full flex-col">
+          <div className="flex items-center justify-between border-b border-white/20 p-6">
+            <div>
+              <h2 className="text-3xl font-light text-white">{category.name}</h2>
+              <p className="mt-1 text-white/60">{category.description}</p>
+            </div>
+            <Button
+              onClick={onClose}
+              variant="ghost"
+              size="icon"
+              className="text-white/80 hover:bg-white/10 hover:text-white"
+            >
+              <X className="h-6 w-6" />
+            </Button>
           </div>
-        </ScrollArea>
+
+          <ScrollArea className="flex-1">
+            <div className="p-6">
+              {category.id === 'photography' ? (
+                <PhotoGalleryOverlayPanel />
+              ) : overlayContent ? (
+                <div className="space-y-8">
+                  {overlayContent.sections.map((section, index) => {
+                    if (section.type === 'text') {
+                      return (
+                        <div key={index} className="prose prose-invert max-w-none">
+                          <p className="text-white/80">{section.content}</p>
+                        </div>
+                      );
+                    } else if (section.type === 'photos' && section.photos) {
+                      return (
+                        <div
+                          key={index}
+                          className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                        >
+                          {section.photos.map((photo, photoIndex) => (
+                            <div
+                              key={photoIndex}
+                              className="overflow-hidden rounded-lg border border-white/20 bg-white/5"
+                              style={{ aspectRatio: photo.aspectRatio }}
+                            >
+                              <div className="flex h-full items-center justify-center text-white/40">
+                                <ImageIcon className="h-12 w-12" />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <p className="text-white/60">Content coming soon...</p>
+                </div>
+              )}
+            </div>
+          </ScrollArea>
+        </div>
       </div>
     </div>
   );

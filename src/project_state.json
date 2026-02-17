@@ -1,50 +1,24 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Build/redeploy with updated UI/animation behavior: reposition vinyl closer to shibhi.studio and align horizontally, mirror tonearm motion to the right side, adjust play/pause opacity, enhance line glow, add hover particles, and increase/accelerate disk spin speed on hover.",
+  "summary": "New project",
   "architectural_notes": [],
-  "known_issues": [
-    "Deployment previously failed; redeploy requested"
-  ],
-  "isFixRequest": false,
+  "known_issues": [],
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-move-the-vinylplayer-s-vinyl-record-image-closer-to-the-shibhi-studio-header-wordmark-and-align-the-vinyl-s-visual-axis-horizontally-with-the-shibhi-studio-wordline-across-relevant-breakpoints",
-      "title": "Move the VinylPlayer’s vinyl record image closer to the “shibhi.studio” header wordmark and align the vinyl’s visual axis horizontally with the “shibhi.studio” wordline across relevant breakpoints.",
+      "id": "feature-adjust-the-electronhoverlink-pcb-track-path-routing-so-the-connection-track-does-not-turn-excessively-and-all-bends-remain-natural-with-a-maximum-bend-angle-of-45-i-e-only-horizontal-vertical-segments-connected-by-45-diagonals-without-additional-sharper-turns-or-overly-aggressive-detours",
+      "title": "Adjust the ElectronHoverLink (PCB track) path routing so the connection track does not “turn” excessively and all bends remain natural with a maximum bend angle of 45° (i.e., only horizontal/vertical segments connected by 45° diagonals, without additional sharper turns or overly aggressive detours).",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-mirror-the-hdd-tonearm-motion-so-the-arm-s-swing-rotation-appears-on-the-right-side-of-the-platter-instead-of-the-left-keeping-the-existing-category-to-angle-behavior-but-mirrored-across-the-x-axis",
-      "title": "Mirror the HDD tonearm motion so the arm’s swing/rotation appears on the right side of the platter (instead of the left), keeping the existing category-to-angle behavior but mirrored across the X axis.",
+      "id": "feature-slightly-reduce-the-intensity-of-the-electronhoverlink-glowing-moving-visuals-the-traveling-glow-segment-and-glow-head-while-preserving-the-same-overall-style-and-timing",
+      "title": "Slightly reduce the intensity of the ElectronHoverLink glowing/moving visuals (the traveling glow segment and glow head), while preserving the same overall style and timing.",
       "reqIds": [
         "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-increase-the-hdd-platter-spin-speed-to-3-the-previous-speed-and-on-hover-gradually-accelerate-to-the-faster-speed-ease-in-rather-than-switching-instantly",
-      "title": "Increase the HDD platter spin speed to 3× the previous speed, and on hover gradually accelerate to the faster speed (ease-in) rather than switching instantly.",
-      "reqIds": [
-        "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-slightly-reduce-the-opacity-of-the-vinylplayer-play-pause-toggle-button-while-preserving-accessibility-contrast-and-focus-styles",
-      "title": "Slightly reduce the opacity of the VinylPlayer play/pause toggle button while preserving accessibility (contrast and focus styles).",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-increase-the-glow-intensity-of-the-existing-electron-link-line-and-add-visibly-moving-particles-through-it-specifically-while-the-target-category-is-hovered-i-e-when-electronhoverlink-is-active",
-      "title": "Increase the glow intensity of the existing electron-link line and add visibly moving particles through it specifically while the target category is hovered (i.e., when ElectronHoverLink is active).",
-      "reqIds": [
-        "REQ-5"
       ],
       "version": 1
     }
@@ -52,46 +26,14 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Reposition vinyl closer to shibhi.studio and align vinyl axis with shibhi.studio wordline horizontally",
+      "summary": "Reduce track turning so turns are at most ~45 degrees (more natural).",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Mirror tonearm animation behavior so swings appear on the right side of the platter (not left)",
+      "summary": "Slightly reduce intensity of glowing and moving visual effects on the track.",
       "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Reduce opacity of the toggle play/pause button slightly",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Increase glow intensity of lines and add moving particles on hover",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-5",
-      "summary": "Increase disk spin speed by 3x and make speed gradually increase faster on hover",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-6",
-      "summary": "Run build/redeploy after applying requested UI/animation changes",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-12",
-      "summary": "Perform a clean build and redeploy after applying the UI/animation updates, following the existing redeploy runbook/script behavior.",
-      "reqIds": [
-        "REQ-6"
-      ],
       "status": "pending"
     }
   ],

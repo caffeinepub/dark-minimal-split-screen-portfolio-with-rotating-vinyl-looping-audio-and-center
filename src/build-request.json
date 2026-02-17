@@ -1,132 +1,53 @@
 {
   "kind": "build_request",
-  "title": "Update vinyl and HDD animations (alignment, mirroring, glow/particles, hover acceleration) and redeploy",
+  "title": "Limit hover-track bend to 45° and reduce traveling glow intensity",
   "projectName": "Shibhi Studio",
-  "priority": "high",
+  "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Move the VinylPlayer’s vinyl record image closer to the “shibhi.studio” header wordmark and align the vinyl’s visual axis horizontally with the “shibhi.studio” wordline across relevant breakpoints.",
+      "text": "Adjust the ElectronHoverLink (PCB track) path routing so the connection track does not “turn” excessively and all bends remain natural with a maximum bend angle of 45° (i.e., only horizontal/vertical segments connected by 45° diagonals, without additional sharper turns or overly aggressive detours).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-7",
-          "msg-10"
+          "msg-3"
         ],
         "quotes": [
-          "bring the vinyl even more closer to shibhi.studio and alined as per axis point of vinyl with shibhi.studio wordline horizontally"
+          "here you are turning the track so much reduce and make them usual of max 45 degree"
         ]
       },
       "acceptanceCriteria": [
-        "On desktop (lg+), the vinyl record appears visually closer to the “shibhi.studio” wordmark than before (reduced gap), without overlapping the text.",
-        "The vinyl record is vertically aligned so its centerline feels horizontally aligned with the “shibhi.studio” wordline (no noticeable vertical misalignment).",
-        "No layout regressions on mobile: header text and vinyl remain readable and do not overflow the viewport."
+        "When hovering a category, the rendered connection track only uses straight horizontal/vertical segments and 45° diagonal transitions (no sharper-than-45° corners).",
+        "Compared to the current behavior, the track path shows visibly less exaggerated turning/detouring between origin and target across typical screen sizes.",
+        "The effect still renders correctly during hover and during the existing fade-out behavior (no flicker, no broken path)."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Mirror the HDD tonearm motion so the arm’s swing/rotation appears on the right side of the platter (instead of the left), keeping the existing category-to-angle behavior but mirrored across the X axis.",
+      "text": "Slightly reduce the intensity of the ElectronHoverLink glowing/moving visuals (the traveling glow segment and glow head), while preserving the same overall style and timing.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-7"
+          "msg-3"
         ],
         "quotes": [
-          "directly mirror the working of arm based on x axis. ... you mirror it working and make those swings come on right side on the platter."
+          "and slightly reduce th intensity of the glowing and moving part."
         ]
       },
       "acceptanceCriteria": [
-        "When hovering categories (or selecting a category), the tonearm rotates in the mirrored direction such that the visual sweep appears on the platter’s right side.",
-        "The arm’s rotation origin remains visually correct (no drifting/offset pivot).",
-        "Arm shadow (if present) remains aligned with the mirrored arm position/rotation."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Increase the HDD platter spin speed to 3× the previous speed, and on hover gradually accelerate to the faster speed (ease-in) rather than switching instantly.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-9"
-        ],
-        "quotes": [
-          "increase the speed of hard disk by 3x times the old spedd and want to fastly gradually incease the speen when hover"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The platter’s baseline spin speed is increased to ~3× the prior rate (relative visual comparison).",
-        "When the HDD becomes hovered/active, the spin rate ramps up smoothly (ease-in) instead of changing abruptly.",
-        "When not hovered/active, the platter returns smoothly to its baseline (no jarring snap)."
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Slightly reduce the opacity of the VinylPlayer play/pause toggle button while preserving accessibility (contrast and focus styles).",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-7"
-        ],
-        "quotes": [
-          "slightly reduce the opacity of the toggle play/pause button"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The play/pause button appears slightly more translucent than before in its default state.",
-        "Hover/focus-visible states still clearly indicate interactivity and remain readable against the vinyl/background.",
-        "Button continues to toggle playback correctly (no functional changes)."
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "text": "Increase the glow intensity of the existing electron-link line and add visibly moving particles through it specifically while the target category is hovered (i.e., when ElectronHoverLink is active).",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-7"
-        ],
-        "quotes": [
-          "increase thr glowing of lines and make some particles moving through it while on hover"
-        ]
-      },
-      "acceptanceCriteria": [
-        "When a category is hovered and the electron link appears, the line is noticeably brighter/more “glowy” than before.",
-        "Particles visibly travel along the line while the link is active.",
-        "When no category is hovered (ElectronHoverLink inactive), particles/line are not rendered (or are fully absent as currently)."
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "text": "Perform a clean build and redeploy after applying the UI/animation updates, following the existing redeploy runbook/script behavior.",
-      "target": "unknown",
-      "source": {
-        "messageIds": [
-          "msg-2",
-          "msg-4",
-          "msg-10"
-        ],
-        "quotes": [
-          "redeploy",
-          "try again",
-          "no please apply all what i said , build it now"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Frontend builds successfully with no TypeScript errors.",
-        "Backend canister deploy completes successfully.",
-        "The updated UI/animations are visible in the deployed app."
+        "The traveling glow trail appears subtly dimmer/less intense than before (lower perceived brightness), without disappearing.",
+        "The moving glow head is also slightly less intense than before while remaining clearly visible.",
+        "Static track rendering (solid + dashed) and fade-in/fade-out behavior continue to work as they do currently."
       ]
     }
   ],
   "constraints": [
-    "Do not edit files under frontend/src/components/ui (read-only); compose them as-is.",
-    "Do not modify frontend immutable hook files: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx.",
-    "Keep backend as a single Motoko actor in backend/main.mo; add backend/migration.mo only if state schema changes (not expected for this request)."
+    "Do not modify files under frontend/src/components/ui or any paths listed as immutable in SYSTEM_CONTEXT.",
+    "Keep changes limited to the existing ElectronHoverLink hover-connection effect; do not introduce new hover behaviors or unrelated UI changes."
   ],
   "nonGoals": [
-    "Add new authentication methods beyond Internet Identity.",
-    "Introduce external databases or third-party real-time systems (WebSockets, push, etc.).",
-    "Create new backend features unrelated to the UI/animation changes."
+    "Changing hover transition timing for category text or other non-track UI elements.",
+    "Backend/canister changes (no Motoko changes required)."
   ],
   "imageRequirements": {
     "required": [],

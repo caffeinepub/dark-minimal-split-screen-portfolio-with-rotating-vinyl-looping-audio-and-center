@@ -1,88 +1,36 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-17T04:21:22.191Z",
+  "generatedAt": "2026-02-17T09:01:00.553Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 6,
-    "implemented": 5,
+    "total": 2,
+    "implemented": 2,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Move the VinylPlayer’s vinyl record image closer to the “shibhi.studio” header wordmark and align the vinyl’s visual axis horizontally with the “shibhi.studio” wordline across relevant breakpoints.",
+        "summary": "Adjust the ElectronHoverLink (PCB track) path routing so the connection track does not “turn” excessively and all bends remain natural with a maximum bend angle of 45° (i.e., only horizontal/vertical segments connected by 45° diagonals, without additional sharper turns or overly aggressive detours).",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/App.tsx",
-          "frontend/src/components/StudioComponents.tsx"
+          "frontend/src/components/ElectronHoverLink.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/App.tsx",
-          "frontend/src/components/StudioComponents.tsx"
+          "frontend/src/components/ElectronHoverLink.tsx"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Mirror the HDD tonearm motion so the arm’s swing/rotation appears on the right side of the platter (instead of the left), keeping the existing category-to-angle behavior but mirrored across the X axis.",
+        "summary": "Slightly reduce the intensity of the ElectronHoverLink glowing/moving visuals (the traveling glow segment and glow head), while preserving the same overall style and timing.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/StudioComponents.tsx",
-          "frontend/src/index.css"
+          "frontend/src/components/ElectronHoverLink.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/StudioComponents.tsx",
-          "frontend/src/index.css"
+          "frontend/src/components/ElectronHoverLink.tsx"
         ]
-      },
-      {
-        "id": "REQ-3",
-        "summary": "Increase the HDD platter spin speed to 3× the previous speed, and on hover gradually accelerate to the faster speed (ease-in) rather than switching instantly.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/StudioComponents.tsx",
-          "frontend/src/index.css"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/StudioComponents.tsx",
-          "frontend/src/index.css"
-        ]
-      },
-      {
-        "id": "REQ-4",
-        "summary": "Slightly reduce the opacity of the VinylPlayer play/pause toggle button while preserving accessibility (contrast and focus styles).",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/StudioComponents.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/StudioComponents.tsx"
-        ]
-      },
-      {
-        "id": "REQ-5",
-        "summary": "Increase the glow intensity of the existing electron-link line and add visibly moving particles through it specifically while the target category is hovered (i.e., when ElectronHoverLink is active).",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/ElectronHoverLink.tsx",
-          "frontend/src/App.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/ElectronHoverLink.tsx",
-          "frontend/src/App.tsx"
-        ]
-      },
-      {
-        "id": "REQ-6",
-        "summary": "Perform a clean build and redeploy after applying the UI/animation updates, following the existing redeploy runbook/script behavior.",
-        "status": "missing",
-        "plannedFiles": [
-          "frontend/scripts/REDEPLOY.md",
-          "frontend/scripts/redeploy.sh",
-          "frontend/scripts/redeploy.ps1"
-        ],
-        "matchedFiles": []
       }
     ]
   },
@@ -91,10 +39,7 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/App.tsx",
     "frontend/src/components/ElectronHoverLink.tsx",
-    "frontend/src/components/StudioComponents.tsx",
-    "frontend/src/index.css",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",
