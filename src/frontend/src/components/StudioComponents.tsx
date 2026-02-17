@@ -111,7 +111,7 @@ export function VinylPlayer({ compact = false }: VinylPlayerProps) {
     }
   };
 
-  // Inline placement: slightly larger vinyl, smaller button
+  // Inline placement: slightly larger vinyl, smaller button with reduced opacity
   const vinylSize = compact ? 'h-24 w-24 lg:h-32 lg:w-32' : 'h-48 w-48 lg:h-56 lg:w-56';
   const buttonSize = compact ? 'h-10 w-10 lg:h-12 lg:w-12' : 'h-12 w-12';
   const iconSize = compact ? 'h-5 w-5 lg:h-6 lg:w-6' : 'h-6 w-6';
@@ -137,7 +137,7 @@ export function VinylPlayer({ compact = false }: VinylPlayerProps) {
           <Button
             onClick={togglePlayPause}
             size="icon"
-            className={`${buttonSize} rounded-full bg-white/90 text-black shadow-2xl backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:bg-white focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-4 focus-visible:ring-offset-transparent`}
+            className={`${buttonSize} rounded-full bg-white/60 text-black shadow-2xl backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:bg-white/90 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-4 focus-visible:ring-offset-transparent`}
             aria-label={isPlaying ? 'Pause audio' : 'Play audio'}
           >
             {isPlaying ? (
@@ -166,6 +166,12 @@ export function HDDHub({ hoveredCategoryId, selectedCategoryId, anchorRef }: HDD
   const [bodyFallbackIndex, setBodyFallbackIndex] = useState(0);
   const [diskFallbackIndex, setDiskFallbackIndex] = useState(0);
   const [armFallbackIndex, setArmFallbackIndex] = useState(0);
+  const [currentRotation, setCurrentRotation] = useState(0);
+  const diskRef = useRef<HTMLDivElement>(null);
+  const animationFrameRef = useRef<number | undefined>(undefined);
+  const lastTimeRef = useRef<number>(0);
+  const targetSpeedRef = useRef<number>(1);
+  const currentSpeedRef = useRef<number>(1);
 
   const activeCategoryId = hoveredCategoryId || selectedCategoryId;
 
@@ -179,22 +185,69 @@ export function HDDHub({ hoveredCategoryId, selectedCategoryId, anchorRef }: HDD
 
   const activeLaneIndex = activeCategoryId ? categoryToLaneIndex.get(activeCategoryId) ?? null : null;
 
-  // Updated arm rotation: 42° for first category (index 0), 20° for 13th category (index 12)
-  const FIRST_CATEGORY_ANGLE = 42;
+  // ARM_BASELINE_DEG: Visual correction so that 0° in the math corresponds to a horizontally placed arm in the UI.
+  // Mirrored: Apply scaleX(-1) to flip the arm horizontally
+  const ARM_BASELINE_DEG = -90;
+  
+  // Category angle mapping: 30° for first category (index 0) to achieve -60° final rotation, 20° for 13th category (index 12)
+  const FIRST_CATEGORY_ANGLE = 30;
   const LAST_CATEGORY_ANGLE = 20;
-  const DEFAULT_ANGLE = 31; // Midpoint when no category is active
+  const DEFAULT_ANGLE = 25; // Midpoint when no category is active
 
   const armRotation = useMemo(() => {
-    if (activeLaneIndex === null) return DEFAULT_ANGLE;
+    let mappedAngleDeg: number;
     
-    const totalLanes = categories.length;
-    // Linear mapping: index 0 → 42°, index 12 → 20°
-    const rotation = FIRST_CATEGORY_ANGLE + (activeLaneIndex * (LAST_CATEGORY_ANGLE - FIRST_CATEGORY_ANGLE)) / (totalLanes - 1);
-    // Clamp to ensure we stay within [20, 42]
-    return Math.max(LAST_CATEGORY_ANGLE, Math.min(FIRST_CATEGORY_ANGLE, rotation));
+    if (activeLaneIndex === null) {
+      mappedAngleDeg = DEFAULT_ANGLE;
+    } else {
+      const totalLanes = categories.length;
+      // Linear mapping: index 0 → 30°, index 12 → 20°
+      const rotation = FIRST_CATEGORY_ANGLE + (activeLaneIndex * (LAST_CATEGORY_ANGLE - FIRST_CATEGORY_ANGLE)) / (totalLanes - 1);
+      // Clamp to ensure we stay within [20, 30]
+      mappedAngleDeg = Math.max(LAST_CATEGORY_ANGLE, Math.min(FIRST_CATEGORY_ANGLE, rotation));
+    }
+    
+    // Apply baseline correction: finalRotationDeg = ARM_BASELINE_DEG + mappedAngleDeg
+    const finalRotationDeg = ARM_BASELINE_DEG + mappedAngleDeg;
+    return finalRotationDeg;
   }, [activeLaneIndex]);
 
-  const diskSpinning = !!activeCategoryId;
+  const diskActive = !!activeCategoryId;
+
+  // Smooth disk rotation with 3x baseline speed and acceleration on hover
+  useEffect(() => {
+    // Set target speed: 3x baseline (3 RPS), 5x when active (5 RPS)
+    targetSpeedRef.current = diskActive ? 5 : 3;
+
+    const animate = (timestamp: number) => {
+      if (lastTimeRef.current === 0) {
+        lastTimeRef.current = timestamp;
+      }
+
+      const deltaTime = (timestamp - lastTimeRef.current) / 1000; // Convert to seconds
+      lastTimeRef.current = timestamp;
+
+      // Smoothly interpolate current speed towards target speed
+      const speedDiff = targetSpeedRef.current - currentSpeedRef.current;
+      const acceleration = 8; // Speed change per second
+      const speedChange = Math.sign(speedDiff) * Math.min(Math.abs(speedDiff), acceleration * deltaTime);
+      currentSpeedRef.current += speedChange;
+
+      // Update rotation based on current speed (degrees per second)
+      const degreesPerSecond = currentSpeedRef.current * 360;
+      setCurrentRotation((prev) => (prev + degreesPerSecond * deltaTime) % 360);
+
+      animationFrameRef.current = requestAnimationFrame(animate);
+    };
+
+    animationFrameRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (animationFrameRef.current !== undefined) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [diskActive]);
 
   const handleBodyError = () => {
     if (bodyFallbackIndex < hddBodyFallbacks.length - 1) {
@@ -245,10 +298,12 @@ export function HDDHub({ hoveredCategoryId, selectedCategoryId, anchorRef }: HDD
           }}
         >
           <div
-            className={`relative h-full w-full transition-transform duration-700 ${
-              diskSpinning ? 'animate-disk-spin' : ''
-            }`}
-            style={{ transformOrigin: 'center center' }}
+            ref={diskRef}
+            className="relative h-full w-full"
+            style={{ 
+              transformOrigin: 'center center',
+              transform: `rotate(${currentRotation}deg)`,
+            }}
           >
             {/* Inner wrapper for 2% size reduction */}
             <div 
@@ -269,7 +324,7 @@ export function HDDHub({ hoveredCategoryId, selectedCategoryId, anchorRef }: HDD
           </div>
         </div>
 
-        {/* Arm shadow layer */}
+        {/* Arm shadow layer - mirrored with scaleX(-1) */}
         <div
           className="absolute transition-transform duration-500 ease-out pointer-events-none hdd-arm-shadow"
           style={{
@@ -277,12 +332,12 @@ export function HDDHub({ hoveredCategoryId, selectedCategoryId, anchorRef }: HDD
             top: '38%',
             width: '24%',
             aspectRatio: '1.6 / 4',
-            transform: `rotate(${armRotation}deg)`,
+            transform: `scaleX(-1) rotate(${armRotation}deg)`,
             transformOrigin: 'center 90%',
           }}
         />
 
-        {/* Arm layer */}
+        {/* Arm layer - mirrored with scaleX(-1) */}
         <div
           className="absolute transition-transform duration-500 ease-out"
           style={{
@@ -290,7 +345,7 @@ export function HDDHub({ hoveredCategoryId, selectedCategoryId, anchorRef }: HDD
             top: '38%',
             width: '24%',
             aspectRatio: '1.6 / 4',
-            transform: `rotate(${armRotation}deg)`,
+            transform: `scaleX(-1) rotate(${armRotation}deg)`,
             transformOrigin: 'center 90%',
           }}
         >
@@ -417,7 +472,7 @@ export function PhotoGalleryOverlayPanel() {
           <div className="space-y-6">
             <div>
               <Label htmlFor="image-file" className="text-white/80">
-                Image File
+                Select Image
               </Label>
               <Input
                 ref={fileInputRef}
@@ -425,140 +480,139 @@ export function PhotoGalleryOverlayPanel() {
                 type="file"
                 accept="image/*"
                 onChange={handleFileSelect}
-                disabled={uploadMutation.isPending}
-                className="mt-2 bg-white/5 text-white border-white/20 file:text-white/80"
+                className="mt-2 bg-white/5 text-white border-white/20"
               />
             </div>
 
             {previewUrl && (
-              <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-white/5">
-                <img
-                  src={previewUrl}
-                  alt="Preview"
-                  className="h-full w-full object-contain"
-                />
-              </div>
-            )}
-
-            <div>
-              <Label htmlFor="image-title" className="text-white/80">
-                Title
-              </Label>
-              <Input
-                id="image-title"
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                disabled={uploadMutation.isPending}
-                className="mt-2 bg-white/5 text-white border-white/20"
-                placeholder="Enter image title"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="image-description" className="text-white/80">
-                Description
-              </Label>
-              <Textarea
-                id="image-description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                disabled={uploadMutation.isPending}
-                className="mt-2 bg-white/5 text-white border-white/20"
-                placeholder="Enter image description (optional)"
-                rows={3}
-              />
-            </div>
-
-            {uploadMutation.isPending && (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm text-white/60">
-                  <span>Uploading...</span>
-                  <span>{uploadProgress}%</span>
-                </div>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
-                  <div
-                    className="h-full bg-white/60 transition-all duration-300"
-                    style={{ width: `${uploadProgress}%` }}
+              <div className="space-y-4">
+                <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-black/20">
+                  <img
+                    src={previewUrl}
+                    alt="Preview"
+                    className="h-full w-full object-contain"
                   />
                 </div>
+
+                <div>
+                  <Label htmlFor="image-title" className="text-white/80">
+                    Title *
+                  </Label>
+                  <Input
+                    id="image-title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Enter image title"
+                    className="mt-2 bg-white/5 text-white border-white/20"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="image-description" className="text-white/80">
+                    Description
+                  </Label>
+                  <Textarea
+                    id="image-description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Enter image description (optional)"
+                    className="mt-2 bg-white/5 text-white border-white/20"
+                    rows={3}
+                  />
+                </div>
+
+                {uploadMutation.isPending && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm text-white/60">
+                      <span>Uploading...</span>
+                      <span>{uploadProgress}%</span>
+                    </div>
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
+                      <div
+                        className="h-full bg-white/60 transition-all duration-300"
+                        style={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex gap-3">
+                  <Button
+                    onClick={handleUpload}
+                    disabled={!title.trim() || uploadMutation.isPending}
+                    className="flex-1 bg-white/20 hover:bg-white/30 text-white"
+                  >
+                    {uploadMutation.isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="mr-2 h-4 w-4" />
+                        Upload
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    onClick={handleCancelUpload}
+                    disabled={uploadMutation.isPending}
+                    variant="outline"
+                    className="bg-white/5 hover:bg-white/10 text-white border-white/20"
+                  >
+                    Cancel
+                  </Button>
+                </div>
               </div>
             )}
-
-            <div className="flex gap-3">
-              <Button
-                onClick={handleUpload}
-                disabled={!selectedFile || !title.trim() || uploadMutation.isPending}
-                className="flex-1 bg-white/10 hover:bg-white/20 text-white"
-              >
-                {uploadMutation.isPending ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Uploading...
-                  </>
-                ) : (
-                  <>
-                    <Upload className="mr-2 h-4 w-4" />
-                    Upload Image
-                  </>
-                )}
-              </Button>
-              {selectedFile && (
-                <Button
-                  onClick={handleCancelUpload}
-                  disabled={uploadMutation.isPending}
-                  variant="outline"
-                  className="bg-white/5 hover:bg-white/10 text-white border-white/20"
-                >
-                  Cancel
-                </Button>
-              )}
-            </div>
           </div>
         </div>
       ) : (
         <Alert className="bg-white/5 border-white/20">
-          <ImageIcon className="h-4 w-4 text-white/60" />
+          <AlertCircle className="h-4 w-4 text-white/60" />
           <AlertDescription className="text-white/80">
             This gallery is read-only. Only administrators can upload images.
           </AlertDescription>
         </Alert>
       )}
 
-      {/* Image Grid */}
-      <div className="space-y-4">
-        <h3 className="text-xl font-light text-white">Gallery</h3>
-        
-        {images && images.length > 0 ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {images.map(([id, metadata]) => (
-              <div
-                key={id.toString()}
-                className="group relative aspect-video overflow-hidden rounded-lg bg-white/5"
-              >
+      {images && images.length > 0 ? (
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {images.map(([id, metadata]) => (
+            <div
+              key={id.toString()}
+              className="group relative overflow-hidden rounded-lg bg-white/5 backdrop-blur-sm transition-all duration-300 hover:bg-white/10"
+            >
+              <div className="relative aspect-video w-full overflow-hidden bg-black/20">
                 <img
                   src={metadata.blob.getDirectURL()}
                   alt={metadata.title}
                   className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                  <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <h4 className="text-lg font-medium text-white">{metadata.title}</h4>
-                    {metadata.description && (
-                      <p className="mt-1 text-sm text-white/80">{metadata.description}</p>
-                    )}
-                  </div>
-                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <ImageIcon className="h-12 w-12 text-white/20" />
-            <p className="mt-4 text-white/60">No images in the gallery yet.</p>
-          </div>
-        )}
-      </div>
+              <div className="p-4">
+                <h4 className="font-medium text-white">{metadata.title}</h4>
+                {metadata.description && (
+                  <p className="mt-1 text-sm text-white/60 line-clamp-2">
+                    {metadata.description}
+                  </p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <ImageIcon className="h-16 w-16 text-white/20 mb-4" />
+          <p className="text-lg text-white/60">No images yet</p>
+          {isAdmin && (
+            <p className="mt-2 text-sm text-white/40">
+              Upload your first image to get started
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -588,20 +642,20 @@ export function CategoryOverlay({ category, onClose }: CategoryOverlayProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl bg-white/10 shadow-2xl backdrop-blur-md"
+        className="relative w-full max-w-4xl max-h-[90vh] rounded-2xl bg-white/10 backdrop-blur-md shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-white/5 px-6 py-4 backdrop-blur-sm lg:px-8">
-          <h2 className="text-2xl font-light text-white lg:text-3xl">{category.name}</h2>
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-white/5 px-6 py-4 backdrop-blur-md">
+          <h2 className="text-2xl font-light text-white">{category.name}</h2>
           <Button
             onClick={onClose}
             size="icon"
             variant="ghost"
-            className="text-white/80 hover:bg-white/10 hover:text-white"
+            className="text-white/60 hover:text-white hover:bg-white/10"
             aria-label="Close overlay"
           >
             <X className="h-6 w-6" />
@@ -609,47 +663,52 @@ export function CategoryOverlay({ category, onClose }: CategoryOverlayProps) {
         </div>
 
         <ScrollArea className="h-[calc(90vh-5rem)]">
-          <div className="px-6 py-8 lg:px-8 lg:py-10">
-            {category.id === 'photogallery' ? (
+          <div className="p-6 lg:p-8">
+            {category.id === 'photo-gallery' ? (
               <PhotoGalleryOverlayPanel />
             ) : overlayContent ? (
               <div className="space-y-8">
                 {overlayContent.sections.map((section, index) => (
                   <div key={index}>
-                    {section.type === 'photos' && section.photos ? (
-                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        {section.photos.map((photo) => (
+                    {section.type === 'photos' && section.photos && (
+                      <div
+                        className="grid gap-4"
+                        style={{
+                          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                        }}
+                      >
+                        {section.photos.map((photo, photoIndex) => (
                           <div
-                            key={photo.id}
+                            key={photoIndex}
                             className="overflow-hidden rounded-lg bg-white/5"
-                            style={{ aspectRatio: photo.aspectRatio }}
+                            style={{
+                              aspectRatio: photo.aspectRatio || '1 / 1',
+                            }}
                           >
-                            <div className="flex h-full w-full items-center justify-center text-white/40">
-                              {photo.placeholder}
+                            <div className="h-full w-full bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center">
+                              <span className="text-white/40 text-sm">
+                                {photo.placeholder || 'Image'}
+                              </span>
                             </div>
                           </div>
                         ))}
                       </div>
-                    ) : section.type === 'text' && section.content ? (
-                      <p className="text-lg leading-relaxed text-white/80">{section.content}</p>
-                    ) : null}
+                    )}
+                    {section.type === 'text' && section.content && (
+                      <div className="prose prose-invert max-w-none">
+                        <p className="text-white/80 leading-relaxed">
+                          {section.content}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="space-y-6">
-                <p className="text-lg leading-relaxed text-white/80">{category.description}</p>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div
-                      key={i}
-                      className="aspect-video overflow-hidden rounded-lg bg-white/5"
-                    >
-                      <div className="flex h-full w-full items-center justify-center text-white/40">
-                        Placeholder {i}
-                      </div>
-                    </div>
-                  ))}
+              <div className="space-y-4">
+                <p className="text-lg text-white/80">{category.description}</p>
+                <div className="rounded-lg bg-white/5 p-8 text-center">
+                  <p className="text-white/40">Content coming soon...</p>
                 </div>
               </div>
             )}

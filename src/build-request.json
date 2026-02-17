@@ -1,53 +1,132 @@
 {
   "kind": "build_request",
-  "title": "Move Vinyl to Header Right and Constrain HDD Arm to 20°–42° Across 13 Categories",
+  "title": "Update vinyl and HDD animations (alignment, mirroring, glow/particles, hover acceleration) and redeploy",
   "projectName": "Shibhi Studio",
-  "priority": "normal",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Reposition the VinylPlayer so it appears at the right end of the “shibhi.studio” header area (aligned to the right of the title section), rather than appearing lower in the left column.",
+      "text": "Move the VinylPlayer’s vinyl record image closer to the “shibhi.studio” header wordmark and align the vinyl’s visual axis horizontally with the “shibhi.studio” wordline across relevant breakpoints.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-7",
+          "msg-10"
         ],
         "quotes": [
-          "right now the vinyl is down bring it to right end of the shibhi.studio"
+          "bring the vinyl even more closer to shibhi.studio and alined as per axis point of vinyl with shibhi.studio wordline horizontally"
         ]
       },
       "acceptanceCriteria": [
-        "On desktop (lg+), the vinyl appears visually at the right side of the header/title area for “shibhi.studio”.",
-        "On smaller screens, the layout remains responsive (no overlap/cutoff); the vinyl may stack under/near the header but should not appear far down the page compared to the header area."
+        "On desktop (lg+), the vinyl record appears visually closer to the “shibhi.studio” wordmark than before (reduced gap), without overlapping the text.",
+        "The vinyl record is vertically aligned so its centerline feels horizontally aligned with the “shibhi.studio” wordline (no noticeable vertical misalignment).",
+        "No layout regressions on mobile: header text and vinyl remain readable and do not overflow the viewport."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Update the HDD arm rotation so it strictly operates only within 20° to 42° (measured from horizontal 0°) and evenly maps exactly 13 categories such that category 1 corresponds to 42° and category 13 corresponds to 20° (with linear interpolation for categories 2–12). Ensure the UI uses exactly these 13 categories for the mapping.",
+      "text": "Mirror the HDD tonearm motion so the arm’s swing/rotation appears on the right side of the platter (instead of the left), keeping the existing category-to-angle behavior but mirrored across the X axis.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-7"
         ],
         "quotes": [
-          "the arm strictly should operate in the range of 20degree to  42degree( from hrizontal 0degree) in that all the 13 catergories are to be splitted ;ike 42-1st category, 20degree-13th category."
+          "directly mirror the working of arm based on x axis. ... you mirror it working and make those swings come on right side on the platter."
         ]
       },
       "acceptanceCriteria": [
-        "When hovering/selecting the first category in the 13-category set, the arm rotation is exactly 42°.",
-        "When hovering/selecting the 13th category in the 13-category set, the arm rotation is exactly 20°.",
-        "For categories 2–12, the arm rotation is linearly spaced between 42° and 20° (inclusive) and is clamped so it never goes below 20° or above 42°.",
-        "The category list used for this arm mapping contains exactly 13 categories (no more, no less), and the mapping is based on the visible/active category ordering."
+        "When hovering categories (or selecting a category), the tonearm rotates in the mirrored direction such that the visual sweep appears on the platter’s right side.",
+        "The arm’s rotation origin remains visually correct (no drifting/offset pivot).",
+        "Arm shadow (if present) remains aligned with the mirrored arm position/rotation."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Increase the HDD platter spin speed to 3× the previous speed, and on hover gradually accelerate to the faster speed (ease-in) rather than switching instantly.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-9"
+        ],
+        "quotes": [
+          "increase the speed of hard disk by 3x times the old spedd and want to fastly gradually incease the speen when hover"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The platter’s baseline spin speed is increased to ~3× the prior rate (relative visual comparison).",
+        "When the HDD becomes hovered/active, the spin rate ramps up smoothly (ease-in) instead of changing abruptly.",
+        "When not hovered/active, the platter returns smoothly to its baseline (no jarring snap)."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Slightly reduce the opacity of the VinylPlayer play/pause toggle button while preserving accessibility (contrast and focus styles).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-7"
+        ],
+        "quotes": [
+          "slightly reduce the opacity of the toggle play/pause button"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The play/pause button appears slightly more translucent than before in its default state.",
+        "Hover/focus-visible states still clearly indicate interactivity and remain readable against the vinyl/background.",
+        "Button continues to toggle playback correctly (no functional changes)."
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Increase the glow intensity of the existing electron-link line and add visibly moving particles through it specifically while the target category is hovered (i.e., when ElectronHoverLink is active).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-7"
+        ],
+        "quotes": [
+          "increase thr glowing of lines and make some particles moving through it while on hover"
+        ]
+      },
+      "acceptanceCriteria": [
+        "When a category is hovered and the electron link appears, the line is noticeably brighter/more “glowy” than before.",
+        "Particles visibly travel along the line while the link is active.",
+        "When no category is hovered (ElectronHoverLink inactive), particles/line are not rendered (or are fully absent as currently)."
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Perform a clean build and redeploy after applying the UI/animation updates, following the existing redeploy runbook/script behavior.",
+      "target": "unknown",
+      "source": {
+        "messageIds": [
+          "msg-2",
+          "msg-4",
+          "msg-10"
+        ],
+        "quotes": [
+          "redeploy",
+          "try again",
+          "no please apply all what i said , build it now"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Frontend builds successfully with no TypeScript errors.",
+        "Backend canister deploy completes successfully.",
+        "The updated UI/animations are visible in the deployed app."
       ]
     }
   ],
   "constraints": [
-    "Do not modify files under frontend/src/components/ui or other paths listed as immutable in SYSTEM_CONTEXT.",
-    "Keep HDDHub and VinylPlayer behavior changes within existing React components (no new backend services)."
+    "Do not edit files under frontend/src/components/ui (read-only); compose them as-is.",
+    "Do not modify frontend immutable hook files: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx.",
+    "Keep backend as a single Motoko actor in backend/main.mo; add backend/migration.mo only if state schema changes (not expected for this request)."
   ],
   "nonGoals": [
-    "No changes to backend Motoko canister logic.",
-    "No new category content, overlays, or new animation features beyond the specified vinyl placement and arm-angle mapping."
+    "Add new authentication methods beyond Internet Identity.",
+    "Introduce external databases or third-party real-time systems (WebSockets, push, etc.).",
+    "Create new backend features unrelated to the UI/animation changes."
   ],
   "imageRequirements": {
     "required": [],

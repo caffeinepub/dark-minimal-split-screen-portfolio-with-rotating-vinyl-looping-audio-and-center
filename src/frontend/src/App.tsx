@@ -24,24 +24,24 @@ export default function App() {
     <PortfolioShell>
       <div className="flex min-h-screen w-full flex-col lg:flex-row">
         <div className="flex flex-1 flex-col justify-center px-8 py-16 lg:px-16 lg:py-24">
-          <div className="max-w-xl space-y-12">
-            {/* Header row with title and vinyl player */}
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between lg:gap-8">
-              <div className="space-y-2">
-                <h1 className="text-5xl font-light tracking-tight text-white lg:text-6xl">
-                  shibhi.studio
-                </h1>
-                <p className="text-base font-light text-white/40 lg:text-lg">
-                  Experimental.
-                </p>
-              </div>
-
-              {/* VinylPlayer at right end on desktop */}
-              <div className="flex justify-start lg:justify-end lg:flex-shrink-0">
-                <VinylPlayer />
-              </div>
+          {/* Header row with reduced gap and better alignment */}
+          <div className="mb-12 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between lg:gap-4">
+            <div className="space-y-2">
+              <h1 className="text-5xl font-light tracking-tight text-white lg:text-6xl">
+                shibhi.studio
+              </h1>
+              <p className="text-base font-light text-white/40 lg:text-lg">
+                Experimental.
+              </p>
             </div>
 
+            {/* VinylPlayer closer to wordmark with vertical centering */}
+            <div className="flex justify-start lg:ml-4 lg:justify-end lg:flex-shrink-0">
+              <VinylPlayer />
+            </div>
+          </div>
+
+          <div className="max-w-xl space-y-12">
             <p className="font-serif text-xl italic text-white/90 lg:text-2xl">
               Not just for a television, Teleport to where it's written.
             </p>

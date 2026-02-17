@@ -1,10 +1,14 @@
 # Specification
 
 ## Summary
-**Goal:** Move the VinylPlayer into the “shibhi.studio” header area on the right, and constrain the HDD arm rotation to a strict 20°–42° range mapped evenly across exactly 13 categories.
+**Goal:** Refine the VinylPlayer and HDD UI animations/layout (alignment, mirrored tonearm motion, spin acceleration, glow/particles) and redeploy the updated app.
 
 **Planned changes:**
-- Reposition the VinylPlayer so it renders at the right end of the “shibhi.studio” header/title area on desktop, with a responsive layout on smaller screens that keeps it near the header (no overlap/cutoff, not far down the page).
-- Update HDD arm rotation logic to clamp strictly between 20° and 42°, and linearly map exactly 13 visible/active categories so category 1 = 42° and category 13 = 20° (with evenly spaced angles for categories 2–12).
+- Adjust VinylPlayer layout so the vinyl record sits closer to the “shibhi.studio” header wordmark and aligns its visual axis/centerline with the wordline across relevant breakpoints.
+- Mirror the HDD tonearm animation across the X axis so the arm’s swing appears on the right side of the platter while preserving existing category-to-angle behavior.
+- Increase the HDD platter baseline spin speed to ~3×, and implement smooth hover/active acceleration (ease-in) and smooth return to baseline.
+- Slightly reduce opacity of the VinylPlayer play/pause toggle button while keeping hover/focus-visible clarity and accessibility.
+- Increase glow intensity of the existing electron-link line and add visible moving particles along it only while a target category is hovered (ElectronHoverLink active).
+- Run a clean build and redeploy so the updated UI/animations are visible in the deployed app.
 
-**User-visible outcome:** The vinyl appears at the right side of the “shibhi.studio” header on desktop (and stays near the header on smaller screens), and the HDD arm reliably rotates only within 20°–42° with predictable positions for all 13 categories.
+**User-visible outcome:** The vinyl sits closer and better aligned with the “shibhi.studio” header, the HDD tonearm swings on the right side, the HDD platter spins faster with smooth hover acceleration, the play/pause button is slightly more translucent but still clear to use, and hovered category links show a brighter glow with moving particles—live after redeploy.

@@ -1,26 +1,50 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "New project",
-  "architectural_notes": [
-    "Arm rotation must be clamped to 20°–42° from horizontal (0°) and mapped to 13 discrete category buckets: 42°→cat1 … 20°→cat13."
+  "summary": "Build/redeploy with updated UI/animation behavior: reposition vinyl closer to shibhi.studio and align horizontally, mirror tonearm motion to the right side, adjust play/pause opacity, enhance line glow, add hover particles, and increase/accelerate disk spin speed on hover.",
+  "architectural_notes": [],
+  "known_issues": [
+    "Deployment previously failed; redeploy requested"
   ],
-  "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-reposition-the-vinylplayer-so-it-appears-at-the-right-end-of-the-shibhi-studio-header-area-aligned-to-the-right-of-the-title-section-rather-than-appearing-lower-in-the-left-column",
-      "title": "Reposition the VinylPlayer so it appears at the right end of the “shibhi.studio” header area (aligned to the right of the title section), rather than appearing lower in the left column.",
+      "id": "feature-move-the-vinylplayer-s-vinyl-record-image-closer-to-the-shibhi-studio-header-wordmark-and-align-the-vinyl-s-visual-axis-horizontally-with-the-shibhi-studio-wordline-across-relevant-breakpoints",
+      "title": "Move the VinylPlayer’s vinyl record image closer to the “shibhi.studio” header wordmark and align the vinyl’s visual axis horizontally with the “shibhi.studio” wordline across relevant breakpoints.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-update-the-hdd-arm-rotation-so-it-strictly-operates-only-within-20-to-42-measured-from-horizontal-0-and-evenly-maps-exactly-13-categories-such-that-category-1-corresponds-to-42-and-category-13-corresponds-to-20-with-linear-interpolation-for-categories-2-12-ensure-the-ui-uses-exactly-these-13-categories-for-the-mapping",
-      "title": "Update the HDD arm rotation so it strictly operates only within 20° to 42° (measured from horizontal 0°) and evenly maps exactly 13 categories such that category 1 corresponds to 42° and category 13 corresponds to 20° (with linear interpolation for categories 2–12). Ensure the UI uses exactly these 13 categories for the mapping.",
+      "id": "feature-mirror-the-hdd-tonearm-motion-so-the-arm-s-swing-rotation-appears-on-the-right-side-of-the-platter-instead-of-the-left-keeping-the-existing-category-to-angle-behavior-but-mirrored-across-the-x-axis",
+      "title": "Mirror the HDD tonearm motion so the arm’s swing/rotation appears on the right side of the platter (instead of the left), keeping the existing category-to-angle behavior but mirrored across the X axis.",
       "reqIds": [
         "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-increase-the-hdd-platter-spin-speed-to-3-the-previous-speed-and-on-hover-gradually-accelerate-to-the-faster-speed-ease-in-rather-than-switching-instantly",
+      "title": "Increase the HDD platter spin speed to 3× the previous speed, and on hover gradually accelerate to the faster speed (ease-in) rather than switching instantly.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-slightly-reduce-the-opacity-of-the-vinylplayer-play-pause-toggle-button-while-preserving-accessibility-contrast-and-focus-styles",
+      "title": "Slightly reduce the opacity of the VinylPlayer play/pause toggle button while preserving accessibility (contrast and focus styles).",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-increase-the-glow-intensity-of-the-existing-electron-link-line-and-add-visibly-moving-particles-through-it-specifically-while-the-target-category-is-hovered-i-e-when-electronhoverlink-is-active",
+      "title": "Increase the glow intensity of the existing electron-link line and add visibly moving particles through it specifically while the target category is hovered (i.e., when ElectronHoverLink is active).",
+      "reqIds": [
+        "REQ-5"
       ],
       "version": 1
     }
@@ -28,8 +52,46 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Move vinyl to the right end of shibhi.studio and constrain arm rotation to 20°–42° (from horizontal 0°), mapping the 13 categories evenly from 42° (category 1) to 20° (category 13).",
+      "summary": "Reposition vinyl closer to shibhi.studio and align vinyl axis with shibhi.studio wordline horizontally",
       "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Mirror tonearm animation behavior so swings appear on the right side of the platter (not left)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Reduce opacity of the toggle play/pause button slightly",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Increase glow intensity of lines and add moving particles on hover",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Increase disk spin speed by 3x and make speed gradually increase faster on hover",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Run build/redeploy after applying requested UI/animation changes",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-12",
+      "summary": "Perform a clean build and redeploy after applying the UI/animation updates, following the existing redeploy runbook/script behavior.",
+      "reqIds": [
+        "REQ-6"
+      ],
       "status": "pending"
     }
   ],

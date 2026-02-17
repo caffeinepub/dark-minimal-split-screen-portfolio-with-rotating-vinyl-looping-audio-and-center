@@ -1,47 +1,131 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Shibhi Studio: Header-right Vinyl + 13-category HDD arm angle mapping (20°–42°)",
+  "title": "Shibhi Studio: refine vinyl/HDD alignment and animation behaviors",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Move VinylPlayer into the header/title row and align it to the right on desktop while keeping responsive stacking on smaller screens.",
+      "summary": "Adjust VinylPlayer placement so the vinyl sits closer to the “shibhi.studio” wordmark and aligns visually across breakpoints.",
       "acceptanceCriteria": [
-        "On desktop (lg+), the vinyl appears visually at the right side of the header/title area for “shibhi.studio”.",
-        "On smaller screens, the layout remains responsive (no overlap/cutoff); the vinyl may stack under/near the header but should not appear far down the page compared to the header area."
+        "On desktop (lg+), the vinyl record appears visually closer to the “shibhi.studio” wordmark than before (reduced gap), without overlapping the text.",
+        "The vinyl record is vertically aligned so its centerline feels horizontally aligned with the “shibhi.studio” wordline (no noticeable vertical misalignment).",
+        "No layout regressions on mobile: header text and vinyl remain readable and do not overflow the viewport."
       ],
       "file_operations": [
         {
           "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Refactor the title area into a responsive header row that places the VinylPlayer at the right end on lg+ (and stacks near the header on smaller screens). Use the existing VinylPlayer component (optionally its compact mode) and remove the current lower-left placement so it no longer appears far down the left column."
+          "description": "Tune the header row layout (gap/justify/margins) to reduce the space between the wordmark block and the VinylPlayer at lg+ while preserving a safe non-overlapping layout on smaller breakpoints."
+        },
+        {
+          "path": "frontend/src/components/StudioComponents.tsx",
+          "operation": "modify",
+          "description": "Adjust VinylPlayer’s outer wrapper sizing/alignment (container flex alignment and/or responsive sizing) to better match the wordmark’s horizontal axis across breakpoints without changing playback behavior."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Clamp HDD arm rotation to 20°–42° and linearly map exactly 13 visible categories (1→42°, 13→20°).",
+      "summary": "Mirror the HDD tonearm rotation so the sweep appears on the right side of the platter while preserving category-to-angle behavior.",
       "acceptanceCriteria": [
-        "When hovering/selecting the first category in the 13-category set, the arm rotation is exactly 42°.",
-        "When hovering/selecting the 13th category in the 13-category set, the arm rotation is exactly 20°.",
-        "For categories 2–12, the arm rotation is linearly spaced between 42° and 20° (inclusive) and is clamped so it never goes below 20° or above 42°.",
-        "The category list used for this arm mapping contains exactly 13 categories (no more, no less), and the mapping is based on the visible/active category ordering."
+        "When hovering categories (or selecting a category), the tonearm rotates in the mirrored direction such that the visual sweep appears on the platter’s right side.",
+        "The arm’s rotation origin remains visually correct (no drifting/offset pivot).",
+        "Arm shadow (if present) remains aligned with the mirrored arm position/rotation."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/data/categories.ts",
+          "path": "frontend/src/components/StudioComponents.tsx",
           "operation": "modify",
-          "description": "Update the exported categories list so it contains exactly 13 categories in the same visible order used by the UI, ensuring the HDD arm mapping is based on this exact 13-item list."
+          "description": "Mirror the HDD arm and its shadow by adjusting the arm transform math and/or applying a horizontal mirror transform to the arm/shadow layers while keeping the same category-to-angle mapping and a stable transformOrigin pivot."
         },
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "If needed after mirroring, adjust the HDD arm shadow styling to remain visually aligned with the mirrored arm position and rotation (no offset/drift)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Increase HDD platter baseline spin speed to ~3× and add smooth hover/active acceleration (ease-in) and deceleration back to baseline.",
+      "acceptanceCriteria": [
+        "The platter’s baseline spin speed is increased to ~3× the prior rate (relative visual comparison).",
+        "When the HDD becomes hovered/active, the spin rate ramps up smoothly (ease-in) instead of changing abruptly.",
+        "When not hovered/active, the platter returns smoothly to its baseline (no jarring snap)."
+      ],
+      "file_operations": [
         {
           "path": "frontend/src/components/StudioComponents.tsx",
           "operation": "modify",
-          "description": "Adjust HDDHub arm rotation logic to compute a linear mapping from lane index (0..12) to degrees (42..20), clamp to [20, 42], and ensure the default/rest angle also stays within the 20°–42° range when no category is active."
+          "description": "Replace the platter’s class-toggled CSS animation approach with a JS-driven rotation (e.g., Web Animations API or rAF) that supports a baseline speed (~3× prior) and smoothly interpolates to a faster speed on hovered/active, then eases back when inactive."
         },
         {
-          "path": "frontend/src/data/categoryOverlayContent.ts",
+          "path": "frontend/src/index.css",
           "operation": "modify",
-          "description": "Keep overlay content consistent with the updated 13-category list (remove or reconcile any overlay entries for categories that are no longer present) to avoid mismatches and ensure the visible/active category ordering is the source of truth."
+          "description": "Update/repurpose the existing disk spin animation utilities as needed to align with the new baseline speed and to ensure no leftover class-based animation causes abrupt speed changes."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Reduce the default opacity of the VinylPlayer play/pause toggle while keeping accessible hover/focus-visible affordances and no behavior changes.",
+      "acceptanceCriteria": [
+        "The play/pause button appears slightly more translucent than before in its default state.",
+        "Hover/focus-visible states still clearly indicate interactivity and remain readable against the vinyl/background.",
+        "Button continues to toggle playback correctly (no functional changes)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/StudioComponents.tsx",
+          "operation": "modify",
+          "description": "Adjust the VinylPlayer toggle Button styling to be slightly more translucent by default, while keeping strong hover/focus-visible styles and leaving toggle logic unchanged. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Boost ElectronHoverLink glow and render visibly moving particles only while a target category is hovered (ElectronHoverLink active).",
+      "acceptanceCriteria": [
+        "When a category is hovered and the electron link appears, the line is noticeably brighter/more “glowy” than before.",
+        "Particles visibly travel along the line while the link is active.",
+        "When no category is hovered (ElectronHoverLink inactive), particles/line are not rendered (or are fully absent as currently)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/ElectronHoverLink.tsx",
+          "operation": "modify",
+          "description": "Increase line glow intensity (e.g., brighter stroke plus shadowBlur/multi-pass glow) and make particle motion more apparent (e.g., slightly higher count/speed/contrast), while ensuring nothing is rendered when origin/target are null (inactive state)."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Ensure ElectronHoverLink activation remains strictly tied to hovered category targeting (no link/particles when not hovering), keeping the existing wiring from HDD anchor to hovered category element."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Ensure the project can be clean-built and redeployed using the existing runbook/scripts after the UI/animation changes.",
+      "acceptanceCriteria": [
+        "Frontend builds successfully with no TypeScript errors.",
+        "Backend canister deploy completes successfully.",
+        "The updated UI/animations are visible in the deployed app."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/scripts/REDEPLOY.md",
+          "operation": "modify",
+          "description": "Update the redeploy runbook to explicitly reference using the existing scripts for a clean rebuild/redeploy after UI/animation updates, and add a brief verification checklist aligned with the updated vinyl/HDD behaviors."
+        },
+        {
+          "path": "frontend/scripts/redeploy.sh",
+          "operation": "modify",
+          "description": "If necessary, adjust script messaging/log output to emphasize clean build verification for the updated UI/animation changes (no behavior change to the script’s steps)."
+        },
+        {
+          "path": "frontend/scripts/redeploy.ps1",
+          "operation": "modify",
+          "description": "If necessary, adjust script messaging/log output to emphasize clean build verification for the updated UI/animation changes (no behavior change to the script’s steps)."
         }
       ]
     }

@@ -25,13 +25,13 @@ export function ElectronHoverLink({ originElement, targetElement }: ElectronHove
       return;
     }
 
-    // Create 8 particles with staggered starting positions
+    // Create 12 particles with staggered starting positions for more visible movement
     const newParticles: Particle[] = [];
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 12; i++) {
       newParticles.push({
         id: particleIdRef.current++,
-        progress: i * 0.125, // Stagger particles along the line
-        intensity: Math.random() * 0.5 + 0.5, // Random starting intensity
+        progress: i * 0.083, // Stagger particles along the line
+        intensity: Math.random() * 0.4 + 0.6, // Higher starting intensity
         intensityDirection: Math.random() > 0.5 ? 1 : -1,
       });
     }
@@ -70,32 +70,47 @@ export function ElectronHoverLink({ originElement, targetElement }: ElectronHove
       const endX = targetRect.left + targetRect.width / 2;
       const endY = targetRect.top + targetRect.height / 2;
 
-      // Draw line
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-      ctx.lineWidth = 1;
+      // Draw line with increased glow
+      ctx.shadowBlur = 20;
+      ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(startX, startY);
       ctx.lineTo(endX, endY);
       ctx.stroke();
 
+      // Draw second glow pass for enhanced brightness
+      ctx.shadowBlur = 30;
+      ctx.shadowColor = 'rgba(255, 255, 255, 0.6)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(startX, startY);
+      ctx.lineTo(endX, endY);
+      ctx.stroke();
+
+      // Reset shadow for particles
+      ctx.shadowBlur = 0;
+
       // Update and draw particles
       setParticles((prevParticles) =>
         prevParticles.map((particle) => {
-          // Update progress
-          let newProgress = particle.progress + 0.008;
+          // Update progress with faster speed for more visible movement
+          let newProgress = particle.progress + 0.012;
           if (newProgress > 1) {
             newProgress = 0;
           }
 
           // Update intensity with smooth oscillation
-          let newIntensity = particle.intensity + particle.intensityDirection * 0.015;
+          let newIntensity = particle.intensity + particle.intensityDirection * 0.02;
           let newDirection = particle.intensityDirection;
 
           if (newIntensity > 1) {
             newIntensity = 1;
             newDirection = -1;
-          } else if (newIntensity < 0.3) {
-            newIntensity = 0.3;
+          } else if (newIntensity < 0.5) {
+            newIntensity = 0.5;
             newDirection = 1;
           }
 
@@ -103,15 +118,21 @@ export function ElectronHoverLink({ originElement, targetElement }: ElectronHove
           const x = startX + (endX - startX) * newProgress;
           const y = startY + (endY - startY) * newProgress;
 
-          // Draw particle
-          const gradient = ctx.createRadialGradient(x, y, 0, x, y, 6);
-          gradient.addColorStop(0, `rgba(255, 255, 255, ${newIntensity * 0.9})`);
-          gradient.addColorStop(0.5, `rgba(255, 255, 255, ${newIntensity * 0.5})`);
+          // Draw particle with enhanced glow
+          const gradient = ctx.createRadialGradient(x, y, 0, x, y, 8);
+          gradient.addColorStop(0, `rgba(255, 255, 255, ${newIntensity})`);
+          gradient.addColorStop(0.4, `rgba(255, 255, 255, ${newIntensity * 0.7})`);
           gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
 
           ctx.fillStyle = gradient;
           ctx.beginPath();
-          ctx.arc(x, y, 6, 0, Math.PI * 2);
+          ctx.arc(x, y, 8, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Add bright core
+          ctx.fillStyle = `rgba(255, 255, 255, ${newIntensity * 0.9})`;
+          ctx.beginPath();
+          ctx.arc(x, y, 3, 0, Math.PI * 2);
           ctx.fill();
 
           return {
